@@ -12,9 +12,9 @@ PKG_NAME:=pon-kernel-fuzzer
 PKG_VERSION:=1.1.1
 
 PKG_SOURCE_PROTO:=git
-PKG_PROJECT:=mxl-oss/pon
+PKG_PROJECT:=maxlinear
 PKG_SOURCE_NAME:=pon_kernel_fuzzer
-CONFIG_UGW_PKG_SOURCE_URL:=ssh://git@git.maxlinear.com
+CONFIG_UGW_PKG_SOURCE_URL:=ssh://git@github.com
 PKG_SOURCE_URL:=$(CONFIG_UGW_PKG_SOURCE_URL)/$(PKG_PROJECT)/$(PKG_SOURCE_NAME).git
 PKG_SOURCE_VERSION:=2ff4ae6f4368fcb7af32ac0a05c8b575a34c6acc
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz

@@ -8,9 +8,9 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pon-firmware
 PKG_SOURCE_PROTO:=git
-PKG_PROJECT:=mxl-oss/pon
+PKG_PROJECT:=maxlinear
 PKG_SOURCE_NAME:=pon_firmware_binary
-CONFIG_UGW_PKG_SOURCE_URL:=ssh://git@git.maxlinear.com
+CONFIG_UGW_PKG_SOURCE_URL:=ssh://git@github.com
 PKG_SOURCE_URL:=$(CONFIG_UGW_PKG_SOURCE_URL)/$(PKG_PROJECT)/$(PKG_SOURCE_NAME).git
 PKG_SOURCE_VERSION:=3.26.x.y.8
 PKG_VERSION:=$(PKG_SOURCE_VERSION)
