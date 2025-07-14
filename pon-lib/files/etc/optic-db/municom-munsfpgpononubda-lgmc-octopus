@@ -1,0 +1,11 @@
+package 'optic'
+
+config 'optic' 'common'
+	option 'mode' 'gpon'
+	option 'bias_hold_time' '263630'
+	option 'bias_setup_time' '192900'
+	option 'serdes_hold_time' '96450'
+	option 'serdes_setup_time' '35365'
+	option 'burst_idle_pattern' '0x00000000'
+	option 'tx_en_mode' '1'
+	option 'sd_polarity' '0'

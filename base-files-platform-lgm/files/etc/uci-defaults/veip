@@ -9,7 +9,7 @@ board_name=$(pon_board_name)
 
 setup_veip() {
 	case $board_name in
-	lgm*|urx851*)
+	lgm*|urx851*|octopus*)
 		touch /etc/config/omci
 		uci set omci.veip1=device
 		uci set omci.veip1.name="VUNI0_0"

@@ -17,7 +17,7 @@ choose_mib_file ()
 		prx321-sfu* | prx321-eva*)
 			echo "prx300_2U.ini"
 			;;
-		lgm* | urx851*)
+		lgm* | urx851* | octopus*)
 			echo "urx800_1V.ini"
 			;;
 	esac

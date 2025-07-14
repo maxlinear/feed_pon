@@ -51,15 +51,15 @@ root@prx321-sfu-qspi-pon:/# ip -d link show
  create mode 100644 ip/iplink_tcont.c
 
 diff --git a/ip/Makefile b/ip/Makefile
-index 31449077..93e82452 100644
+index 95b0b027..96f08082 100644
 --- a/ip/Makefile
 +++ b/ip/Makefile
-@@ -11,7 +11,9 @@ IPOBJ=ip.o ipaddress.o ipaddrlabel.o iproute.o iprule.o ipnetns.o \
-     iplink_bridge.o iplink_bridge_slave.o ipfou.o iplink_ipvlan.o \
-     iplink_geneve.o iplink_vrf.o iproute_lwtunnel.o ipmacsec.o ipila.o \
+@@ -13,7 +13,9 @@ IPOBJ=ip.o ipaddress.o ipaddrlabel.o iproute.o iprule.o ipnetns.o \
      ipvrf.o iplink_xstats.o ipseg6.o iplink_netdevsim.o iplink_rmnet.o \
--    ipnexthop.o ipmptcp.o iplink_bareudp.o iplink_wwan.o ipioam6.o
-+    ipnexthop.o ipmptcp.o iplink_bareudp.o iplink_wwan.o ipioam6.o \
+     ipnexthop.o ipmptcp.o iplink_bareudp.o iplink_wwan.o ipioam6.o \
+     iplink_amt.o iplink_batadv.o iplink_gtp.o iplink_virt_wifi.o \
+-    ipstats.o
++    ipstats.o \
 +    iplink_pmapper.o iplink_gem.o iplink_tcont.o iplink_iphost.o iplink_llid.o \
 +    iplink_pon.o
  

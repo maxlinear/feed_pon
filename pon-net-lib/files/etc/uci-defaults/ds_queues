@@ -1,6 +1,8 @@
 #!/bin/sh
+# shellcheck shell=dash
+
 # SPDX-License-Identifier: GPL-2.0
-# Copyright (c) 2021-2022 Maxlinear Inc.
+# Copyright (c) 2021-2025 Maxlinear Inc.
 
 # Prevent creation of DS priority queues for UNI and VEIP interface
 disable_ds_pq() {
@@ -8,7 +10,9 @@ disable_ds_pq() {
 	uci set omci.net.no_ds_prio_queues=1
 }
 
+# Check if the system is booted in PON mode, otherwise return a non-zero value
+# to keep this script and retry the check on next boot.
+[ -e /sys/class/net/pon0 ] || exit 1
+
 # Check if device for HGU / routing is present
-if ip link show VUNI0_0 >/dev/null 2>&1; then
-	disable_ds_pq
-fi
+[ -e /sys/class/net/VUNI0_0 ] && disable_ds_pq

@@ -8,8 +8,8 @@ if [ ! -f /etc/config/optic ]; then
 	touch  /etc/config/optic
 fi
 
-eeprom_dmi=$(pon_transceiver_eeprom_path "dmi")
-eeprom_serial_id=$(pon_transceiver_eeprom_path "serial_id")
+eeprom_dmi="/sys/class/pon_mbox/pon_mbox0/device/eeprom51"
+eeprom_serial_id="/sys/class/pon_mbox/pon_mbox0/device/eeprom50"
 
 uci set optic.sfp_eeprom=optic
 uci set optic.sfp_eeprom.comment="settings for pon v1.17 or later"

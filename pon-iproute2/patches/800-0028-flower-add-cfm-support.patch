@@ -14,19 +14,19 @@ Signed-off-by: Zahari Doychev <zdoychev@maxlinear.com>
  4 files changed, 139 insertions(+), 2 deletions(-)
 
 diff --git a/include/uapi/linux/pkt_cls.h b/include/uapi/linux/pkt_cls.h
-index 28938439..9ba4fd18 100644
+index 4e059057..1237fe26 100644
 --- a/include/uapi/linux/pkt_cls.h
 +++ b/include/uapi/linux/pkt_cls.h
-@@ -585,6 +585,8 @@ enum {
- 	TCA_FLOWER_KEY_HASH,		/* u32 */
- 	TCA_FLOWER_KEY_HASH_MASK,	/* u32 */
+@@ -595,6 +595,8 @@ enum {
+ 
+ 	TCA_FLOWER_KEY_L2TPV3_SID,	/* be32 */
  
 +	TCA_FLOWER_KEY_CFM,
 +
  	__TCA_FLOWER_MAX,
  };
  
-@@ -678,6 +680,16 @@ enum {
+@@ -703,6 +705,16 @@ enum {
  	TCA_FLOWER_KEY_FLAGS_FRAG_IS_FIRST = (1 << 1),
  };
  
@@ -44,10 +44,10 @@ index 28938439..9ba4fd18 100644
  
  /* Match-all classifier */
 diff --git a/lib/ll_proto.c b/lib/ll_proto.c
-index 78179311..cbcd7996 100644
+index 526e582f..5aacb5b4 100644
 --- a/lib/ll_proto.c
 +++ b/lib/ll_proto.c
-@@ -81,6 +81,7 @@ __PF(8021AD,802.1ad)
+@@ -78,6 +78,7 @@ __PF(8021AD,802.1ad)
  __PF(MPLS_UC,mpls_uc)
  __PF(MPLS_MC,mpls_mc)
  __PF(TEB,teb)
@@ -56,10 +56,10 @@ index 78179311..cbcd7996 100644
  { 0x8100, "802.1Q" },
  { 0x88cc, "LLDP" },
 diff --git a/man/man8/tc-flower.8 b/man/man8/tc-flower.8
-index 4541d937..1b6e0582 100644
+index fc73da93..2634a441 100644
 --- a/man/man8/tc-flower.8
 +++ b/man/man8/tc-flower.8
-@@ -92,7 +92,9 @@ flower \- flow based traffic control filter
+@@ -100,7 +100,9 @@ flower \- flow based traffic control filter
  }
  .IR OPTIONS " | "
  .BR ip_flags
@@ -70,7 +70,7 @@ index 4541d937..1b6e0582 100644
  
  .ti -8
  .IR LSE_LIST " := [ " LSE_LIST " ] " LSE
-@@ -110,6 +112,13 @@ flower \- flow based traffic control filter
+@@ -118,6 +120,13 @@ flower \- flow based traffic control filter
  .B ttl
  .IR TTL " }"
  
@@ -84,7 +84,7 @@ index 4541d937..1b6e0582 100644
  .SH DESCRIPTION
  The
  .B flower
-@@ -456,6 +465,20 @@ respectively. firstfrag and nofirstfrag can be used to further distinguish
+@@ -493,6 +502,20 @@ respectively. firstfrag and nofirstfrag can be used to further distinguish
  fragmented packet. firstfrag can be used to indicate the first fragmented
  packet. nofirstfrag can be used to indicates subsequent fragmented packets
  or non-fragmented packets.
@@ -106,10 +106,10 @@ index 4541d937..1b6e0582 100644
  As stated above where applicable, matches of a certain layer implicitly depend
  on the matches of the next lower layer. Precisely, layer one and two matches
 diff --git a/tc/f_flower.c b/tc/f_flower.c
-index 7f78195f..3f4eb985 100644
+index 48cfafdb..7ade9839 100644
 --- a/tc/f_flower.c
 +++ b/tc/f_flower.c
-@@ -89,12 +89,14 @@ static void explain(void)
+@@ -95,12 +95,14 @@ static void explain(void)
  		"			ct_state MASKED_CT_STATE |\n"
  		"			ct_label MASKED_CT_LABEL |\n"
  		"			ct_mark MASKED_CT_MARK |\n"
@@ -125,7 +125,7 @@ index 7f78195f..3f4eb985 100644
  		"	ACTION-SPEC := ... look at individual actions\n"
  		"\n"
  		"NOTE:	CLASSID, IP-PROTO are parsed as hexadecimal input.\n"
-@@ -1319,6 +1321,62 @@ static int flower_parse_mpls(int *argc_p, char ***argv_p, struct nlmsghdr *nlh)
+@@ -1446,6 +1448,62 @@ static int flower_parse_mpls(int *argc_p, char ***argv_p, struct nlmsghdr *nlh)
  	return 0;
  }
  
@@ -188,7 +188,7 @@ index 7f78195f..3f4eb985 100644
  static int flower_parse_opt(struct filter_util *qu, char *handle,
  			    int argc, char **argv, struct nlmsghdr *n)
  {
-@@ -1865,6 +1923,12 @@ static int flower_parse_opt(struct filter_util *qu, char *handle,
+@@ -2055,6 +2113,12 @@ static int flower_parse_opt(struct filter_util *qu, char *handle,
  				return -1;
  			}
  			continue;
@@ -198,10 +198,10 @@ index 7f78195f..3f4eb985 100644
 +			if (ret < 0)
 +				return -1;
 +			continue;
- 		} else if (strcmp(*argv, "help") == 0) {
- 			explain();
- 			return -1;
-@@ -2543,6 +2607,41 @@ static void flower_print_arp_op(const char *name,
+ 		} else {
+ 			if (strcmp(*argv, "help") != 0)
+ 				fprintf(stderr, "What is \"%s\"?\n", *argv);
+@@ -2744,6 +2808,41 @@ static void flower_print_arp_op(const char *name,
  			       flower_print_arp_op_to_name);
  }
  
@@ -243,7 +243,7 @@ index 7f78195f..3f4eb985 100644
  static int flower_print_opt(struct filter_util *qu, FILE *f,
  			    struct rtattr *opt, __u32 handle)
  {
-@@ -2757,6 +2856,8 @@ static int flower_print_opt(struct filter_util *qu, FILE *f,
+@@ -2992,6 +3091,8 @@ static int flower_print_opt(struct filter_util *qu, FILE *f,
  	flower_print_ct_label(tb[TCA_FLOWER_KEY_CT_LABELS],
  			      tb[TCA_FLOWER_KEY_CT_LABELS_MASK]);
  

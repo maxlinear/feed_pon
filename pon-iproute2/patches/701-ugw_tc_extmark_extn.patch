@@ -1,4 +1,4 @@
-From 464c5b5df578b0ea7b9a9a658926c8a0adebaaa8 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: vrp <vijaykumar.rp@intel.com>
 Date: Wed, 23 Feb 2022 10:11:47 +0100
 Subject: Add extmark match based classification support in tc filter
@@ -11,10 +11,10 @@ Enables "tc filter" QoS Classify operations based on extmark value.
  2 files changed, 50 insertions(+)
 
 diff --git a/include/uapi/linux/pkt_cls.h b/include/uapi/linux/pkt_cls.h
-index 6836ccb9..28938439 100644
+index 648a82f3..4e059057 100644
 --- a/include/uapi/linux/pkt_cls.h
 +++ b/include/uapi/linux/pkt_cls.h
-@@ -230,6 +230,7 @@ enum {
+@@ -233,6 +233,7 @@ enum {
  	TCA_U32_MARK,
  	TCA_U32_FLAGS,
  	TCA_U32_PAD,
@@ -23,10 +23,10 @@ index 6836ccb9..28938439 100644
  };
  
 diff --git a/tc/f_u32.c b/tc/f_u32.c
-index a5747f67..227b52a1 100644
+index 936dbd65..17fa30a3 100644
 --- a/tc/f_u32.c
 +++ b/tc/f_u32.c
-@@ -690,6 +690,41 @@ static int parse_mark(int *argc_p, char ***argv_p, struct nlmsghdr *n)
+@@ -686,6 +686,41 @@ static int parse_mark(int *argc_p, char ***argv_p, struct nlmsghdr *n)
  	return res;
  }
  
@@ -68,7 +68,7 @@ index a5747f67..227b52a1 100644
  static int parse_selector(int *argc_p, char ***argv_p,
  			  struct tc_u32_sel *sel, struct nlmsghdr *n)
  {
-@@ -727,6 +762,9 @@ static int parse_selector(int *argc_p, char ***argv_p,
+@@ -723,6 +758,9 @@ static int parse_selector(int *argc_p, char ***argv_p,
  	} else if (matches(*argv, "mark") == 0) {
  		NEXT_ARG();
  		res = parse_mark(&argc, &argv, n);
@@ -78,7 +78,7 @@ index a5747f67..227b52a1 100644
  	} else if (matches(*argv, "ether") == 0) {
  		NEXT_ARG();
  		res = parse_ether(&argc, &argv, sel);
-@@ -1291,6 +1329,17 @@ static int u32_print_opt(struct filter_util *qu, FILE *f, struct rtattr *opt,
+@@ -1324,6 +1362,17 @@ static int u32_print_opt(struct filter_util *qu, FILE *f, struct rtattr *opt,
  		}
  	}
  

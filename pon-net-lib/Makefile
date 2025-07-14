@@ -11,14 +11,14 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=pon-net-lib
-PKG_VERSION:=1.22.2
+PKG_VERSION:=2.1.0
 PKG_SOURCE_VERSION:=$(PKG_VERSION)
 PKG_SOURCE_PROTO:=git
 PKG_PROJECT:=maxlinear
 PKG_SOURCE_NAME:=pon_net_lib
 CONFIG_UGW_PKG_SOURCE_URL:=ssh://git@github.com
 PKG_SOURCE_URL:=$(CONFIG_UGW_PKG_SOURCE_URL)/$(PKG_PROJECT)/$(PKG_SOURCE_NAME).git
-PKG_MIRROR_HASH:=f493f0e8113c1e14666b4ef885d8b0076ae3cda209eb2e4c55452af6b111f770
+PKG_MIRROR_HASH:=c8bc14843230d063b73b72680c8fe8fef88628a8d42cf1981c0e687581b89e45
 PKG_RELEASE:=1
 PKG_FIXUP:=autoreconf
 PKG_BUILD_PARALLEL:=1
@@ -39,6 +39,10 @@ PKG_INSTALL_DIR=$(PKG_BUILD_DIR)/$(CONFIGURE_PATH)/ipkg-install
 STAMP_CONFIGURED=$(PKG_BUILD_DIR)/$(CONFIGURE_PATH)/.configured$(if $(DUMP),,_$(call confvar,$(PKG_CONFIG_DEPENDS)))
 STAMP_CONFIGURED_WILDCARD=$(PKG_BUILD_DIR)/$(CONFIGURE_PATH)/.configured_*
 STAMP_BUILT=$(PKG_BUILD_DIR)/$(CONFIGURE_PATH)/.built
+
+PKG_CONFIG_DEPENDS:= \
+	CONFIG_PON_NET_LIB_NO_TC_OFFLOAD \
+	CONFIG_MCC_DRV_ENABLE
 
 define Package/$(PKG_NAME)
   SECTION:=application
@@ -73,26 +77,13 @@ define Package/$(PKG_NAME)/config
 
 	config MCC_DRV_ENABLE
 		bool "enable MCC driver"
+		default y
 		help
-			This will enable MCC drvier usage
+			This will enable MCC driver usage
 
 	endmenu
 	$(call Package/$(PKG_NAME)/override_source_path)
 endef
-
-define KernelPackage/pon-arp-ndp-reinsert
-  TITLE:=PON multicast packet bridge reinsert
-  SUBMENU:=MaxLinear
-  DEPENDS:=+kmod-nf-reject
-  KCONFIG:=CONFIG_DP_ARP_NDP_REINSERT
-  FILES:=$(LINUX_DIR)/drivers/net/datapath/bridge_filter/arp_ndp_reinsert.ko
-  # We do not want to load this in all models and do this manually in the pon_net_lib when the LCT was created.
-  # AUTOLOAD:=$(call AutoProbe,arp_ndp_reinsert)
-endef
-
-PKG_CONFIG_DEPENDS:= \
-	CONFIG_PON_NET_LIB_NO_TC_OFFLOAD \
-	CONFIG_MCC_DRV_ENABLE
 
 # make the submake silent:
 ifeq ($(QUIET),1)
@@ -145,5 +136,4 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_BIN) ./files/etc/uci-defaults/ds_queues $(1)/etc/uci-defaults/
 endef
 
-$(eval $(call KernelPackage,pon-arp-ndp-reinsert))
 $(eval $(call BuildPackage,$(PKG_NAME)))

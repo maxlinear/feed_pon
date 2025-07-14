@@ -1,8 +1,10 @@
 #!/bin/sh
+# shellcheck shell=dash
+#
 # Copyright (C) 2011 OpenWrt.org
 # Copyright (C) 2011 lantiq.com
 # Copyright (C) 2018 - 2020 Intel Corporation
-# Copyright (c) 2022 Maxlinear Inc.
+# Copyright (c) 2022 - 2025 Maxlinear Inc.
 
 pon_dt_name() {
 	local machine
@@ -21,11 +23,14 @@ pon_dt_name() {
 		lgp*|osp-tb341)
 			name="urx851-ref"
 			;;
+		octopus-640*)
+			name="lgmc-octopus"
+			;;
 		octopus*|osp-tb341-v2)
 			name="urx851-octopus"
 			;;
 		*)
-			echo "pon_dt_name: Unknown machine name: $name" > /dev/console
+			echo "Unknown machine name: $name"
 			;;
 	esac
 
@@ -33,11 +38,13 @@ pon_dt_name() {
 }
 
 pon_board_name() {
-	local name
+	pon_dt_name
+}
 
-	name=$(pon_dt_name)
-
-	echo "$name"
+# return only the board identification, without variadic parts
+# currently not used for lgm
+pon_board_base_name() {
+	pon_board_name
 }
 
 # return ponmbox node status
@@ -163,54 +170,4 @@ pon_ploam_emergency_stop_state_get() {
 pon_is_10g_platform() {
 	# true
 	return 0
-}
-
-pon_transceiver_eeprom_path() {
-	local dmi_alias="/sys/firmware/devicetree/base/aliases/wan_eeprom_51"
-	local serial_alias="/sys/firmware/devicetree/base/aliases/wan_eeprom_50"
-	local path
-	local adr
-	local bus
-
-	# check for new path via pon_mbox
-	case "$1" in
-	dmi)
-		path="/sys/class/pon_mbox/pon_mbox0/device/eeprom51"
-		;;
-	serial_id)
-		path="/sys/class/pon_mbox/pon_mbox0/device/eeprom50"
-		;;
-	esac
-	[ -e "$path" ] && {
-		echo "$path"
-		return
-	}
-
-	# backward compatible path
-	case "$1" in
-	dmi)
-		adr=$(awk 'BEGIN{RS="/";FS="@"} {if (NR == 2) {print $2}}' "$dmi_alias")
-		if [ -n $"adr" ]; then
-			bus=$(find /sys/devices/soc0/$adr".i2c" -maxdepth 1 -name "i2c*" |
-				sed -e 's/.*i2c-\([0-9]\)/\1/')
-			[ -n $"bus" ] && path="/sys/bus/i2c/devices/"$bus"-0051/eeprom"
-		else
-			path="/sys/bus/i2c/devices/1-0051/eeprom"
-		fi
-		;;
-	serial_id)
-		adr=$(awk 'BEGIN{RS="/";FS="@"} {if (NR == 2) {print $2}}' "$serial_alias")
-		if [ -n $"adr" ]; then
-			bus=$(find /sys/devices/soc0/$adr".i2c" -maxdepth 1 -name "i2c*" |
-				sed -e 's/.*i2c-\([0-9]\)/\1/')
-			[ -n $"bus" ] && path="/sys/bus/i2c/devices/"$bus"-0050/eeprom"
-		else
-			path="/sys/bus/i2c/devices/1-0050/eeprom"
-		fi
-		;;
-	esac
-	[ -e "$path" ] && {
-		echo "$path"
-		return
-	}
 }

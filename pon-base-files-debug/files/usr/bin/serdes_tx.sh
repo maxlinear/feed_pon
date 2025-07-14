@@ -107,7 +107,7 @@ else
 fi
 
 case "${machine}" in
-*lightning*)
+*lightning*|*octopus*)
 	machine="URX"
 	define_urx_serdes
 	if [ "${serdes_value}" == "" ]; then

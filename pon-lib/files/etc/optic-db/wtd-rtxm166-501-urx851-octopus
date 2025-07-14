@@ -1,0 +1,10 @@
+package 'optic'
+
+config optic 'common'
+	option 'mode' 'xgspon'
+	option 'sd_polarity' '0'
+
+config optic 'offsets'
+	option 'laser_setup_time' '-9645'
+	option 'serdes_hold_time' '19290'
+	option 'bias_hold_time' '12860'

@@ -1,8 +1,11 @@
 #!/bin/sh
+# shellcheck shell=dash
+# shellcheck disable=SC3060
+#
 # Copyright (C) 2011 OpenWrt.org
 # Copyright (C) 2011 lantiq.com
 # Copyright (C) 2018 - 2020 Intel Corporation
-# Copyright (c) 2022 Maxlinear Inc.
+# Copyright (c) 2022 - 2025 Maxlinear Inc.
 
 pon_dt_name() {
 	local machine
@@ -19,16 +22,6 @@ pon_dt_name() {
 	# use first word in lower case
 	name=$(echo $machine | awk '{print tolower($1);}')
 
-	# to stay backward compatible, these names must be upper case:
-	case "$name" in
-	mdu)
-		name="MDU"
-		;;
-	sfp)
-		name="SFP"
-		;;
-	esac
-
 	echo "$name"
 }
 
@@ -40,6 +33,23 @@ pon_board_name() {
 	# or use devicetree as fallback
 	[ -z "$name" ] && name=$(pon_dt_name)
 
+	echo "$name"
+}
+
+# return only the board identification, without variadic parts
+# like memory sizes, wan mode or addon modules
+pon_board_base_name() {
+	local name
+	name=$(pon_board_name)
+	# remove parts of the names
+	name=${name/-w5500/}
+	name=${name/-10g-lan/}
+	name=${name/-b48/}
+	name=${name/-256/}
+	name=${name/-512/}
+	name=${name/-1gb-ddr4/}
+	name=${name/-eth/}
+	name=${name/-pon/}
 	echo "$name"
 }
 
@@ -189,43 +199,4 @@ pon_ploam_emergency_stop_state_get() {
 pon_is_10g_platform() {
 	# true
 	return 0
-}
-
-pon_transceiver_eeprom_path() {
-	local path=""
-	local bus=0
-
-	# check for new path via pon_mbox
-	case "$1" in
-	dmi)
-		path="/sys/class/pon_mbox/pon_mbox0/device/eeprom51"
-		;;
-	serial_id)
-		path="/sys/class/pon_mbox/pon_mbox0/device/eeprom50"
-		;;
-	esac
-	[ -e "$path" ] && {
-		echo "$path"
-		return
-	}
-
-	# backward compatible path
-	case $(pon_board_name) in
-	prx321-sfu-lab*)
-		bus=4
-		;;
-	esac
-
-	case "$1" in
-	dmi)
-		path="/sys/bus/i2c/devices/${bus}-0051/eeprom"
-		;;
-	serial_id)
-		path="/sys/bus/i2c/devices/${bus}-0050/eeprom"
-		;;
-	esac
-	[ -e "$path" ] && {
-		echo "$path"
-		return
-	}
 }

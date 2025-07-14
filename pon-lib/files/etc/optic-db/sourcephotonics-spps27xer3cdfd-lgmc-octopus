@@ -1,0 +1,13 @@
+package 'optic'
+
+config 'optic' 'common'
+	option 'mode' 'xgspon'
+	option 'bias_hold_time' '0'
+	option 'serdes_hold_time' '28935'
+	option 'serdes_setup_time' '80375'
+	option 'burst_idle_pattern' '0x00000000'
+	option 'burst_en_mode' '1'
+	option 'laser_setup_time' '32150'
+	option 'tx_pup_mode' '1'
+	option 'sd_polarity' '0'
+	option 'tx_power_scale' '1'

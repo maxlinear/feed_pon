@@ -17,7 +17,7 @@ PKG_SOURCE_NAME:=pon_serdes_firmware_binary
 CONFIG_UGW_PKG_SOURCE_URL:=ssh://git@github.com
 PKG_SOURCE_URL:=$(CONFIG_UGW_PKG_SOURCE_URL)/$(PKG_PROJECT)/$(PKG_SOURCE_NAME).git
 PKG_MIRROR_HASH:=abea300dc5643b7a773f72413264a0999ec0cef647bf9dee32a11169e0bda596
-PKG_LICENSE:=MaxLinear Commercial Use License
+PKG_LICENSE:=MaxLinear
 PKG_LICENSE_FILES:=LICENSE
 
 include $(INCLUDE_DIR)/package.mk

@@ -10,14 +10,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pon-lib
-PKG_VERSION:=1.26.2
+PKG_VERSION:=2.3.2
 PKG_SOURCE_VERSION:=$(PKG_VERSION)
 PKG_SOURCE_PROTO:=git
 PKG_PROJECT:=maxlinear
 PKG_SOURCE_NAME:=pon_lib
 CONFIG_UGW_PKG_SOURCE_URL:=ssh://git@github.com
 PKG_SOURCE_URL:=$(CONFIG_UGW_PKG_SOURCE_URL)/$(PKG_PROJECT)/$(PKG_SOURCE_NAME).git
-PKG_MIRROR_HASH:=f036be50b1635d0f51a7845aa2768a62c365245be778659ca8d7ec3d35767247
+PKG_MIRROR_HASH:=54a955423b7f0a5a39057252ef7359884e0366aa8e72be1e8c08711ba4494873
 PKG_RELEASE:=1
 PKG_BUILD_DEPENDS:=pon-mbox-drv
 PKG_BIN_DIR=usr/bin
@@ -146,26 +146,10 @@ define Build/InstallDev
 endef
 
 define Package/$(PKG_NAME)/install
+	$(CP) ./files/* $(1)/
+
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libpon.so* $(1)/usr/lib
-
-	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_BIN) ./files/etc/init.d/pondb $(1)/etc/init.d/
-
-	$(INSTALL_DIR) $(1)/lib/pon/
-	$(INSTALL_BIN) ./files/lib/pon/pondb.sh $(1)/lib/pon/
-
-	$(INSTALL_DIR) $(1)/etc/uci-defaults
-	$(INSTALL_BIN) ./files/etc/uci-defaults/60-pond $(1)/etc/uci-defaults/
-	$(INSTALL_BIN) ./files/etc/uci-defaults/optic $(1)/etc/uci-defaults/
-	$(INSTALL_BIN) ./files/etc/uci-defaults/pon-sfp $(1)/etc/uci-defaults/
-
-	$(INSTALL_DIR) $(1)/etc/config/
-	$(CP) ./files/etc/config/* $(1)/etc/config/
-	$(INSTALL_DIR) $(1)/etc/optic-db/
-	$(CP) ./files/etc/optic-db/* $(1)/etc/optic-db/
-	$(INSTALL_DIR) $(1)/etc/serdes-db/
-	$(CP) ./files/etc/serdes-db/* $(1)/etc/serdes-db/
 endef
 
 define Package/$(PKG_NAME)-cli/install
@@ -177,7 +161,7 @@ define Package/$(PKG_NAME)-daemon/install
 	$(INSTALL_DIR) $(1)/$(PKG_BIN_DIR)
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/pond $(1)/$(PKG_BIN_DIR)
 	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_BIN) ./files/etc/init.d/pond $(1)/etc/init.d/
+	$(INSTALL_BIN) ./files-daemon/pond $(1)/etc/init.d/
 endef
 
 define Package/ponmbox-cli/install

@@ -64,6 +64,7 @@ start_service() {
 		procd_set_param respawn
 		procd_set_param stdout $stdout
 		procd_set_param stderr $stderr
+		procd_set_param term_timeout 60
 		procd_close_instance
 	fi
 }

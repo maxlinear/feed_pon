@@ -1,10 +1,9 @@
-From 62affd5317c727650230219cec6980bd426e6b64 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Jitendra <jitendra@maxlinear.com>
 Date: Wed, 23 Feb 2022 15:35:04 +0100
 Subject: Guarded IFF_VOLATILE of iproute2 package
 
 Avoid redefinition of the IFF_VOLATILE macro
-
 ---
  include/uapi/linux/if.h | 2 ++
  1 file changed, 2 insertions(+)

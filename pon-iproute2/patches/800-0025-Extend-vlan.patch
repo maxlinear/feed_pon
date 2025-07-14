@@ -11,10 +11,10 @@ vlan vid value. This allows changing the VLAN pcp value for example.
  1 file changed, 9 insertions(+), 1 deletion(-)
 
 diff --git a/tc/m_vlan.c b/tc/m_vlan.c
-index 221083df..9419d45e 100644
+index c1dc8b42..03de6e84 100644
 --- a/tc/m_vlan.c
 +++ b/tc/m_vlan.c
-@@ -179,13 +179,21 @@ static int parse_vlan(struct action_util *a, int *argc_p, char ***argv_p,
+@@ -175,13 +175,21 @@ static int parse_vlan(struct action_util *a, int *argc_p, char ***argv_p,
  		}
  	}
  

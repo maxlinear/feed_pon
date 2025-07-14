@@ -118,7 +118,7 @@ bbf_mode1_enable() {
 
 start() {
 	case $board_name in
-	lgm*|urx851*)
+	lgm*|urx851*|octopus*)
 		bbf_mode1_enable "yes"
 		bbf_checksum_verification "no"
 		;;
@@ -127,7 +127,7 @@ start() {
 
 stop() {
 	case $board_name in
-	lgm*|urx851*)
+	lgm*|urx851*|octopus*)
 		bbf_mode1_enable "no"
 		bbf_checksum_verification "yes"
 		;;

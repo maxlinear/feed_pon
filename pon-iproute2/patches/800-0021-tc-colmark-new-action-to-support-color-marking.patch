@@ -1,32 +1,32 @@
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From 5aef8ce4a4aeaea67cd57599c99ea695f77050d6 Mon Sep 17 00:00:00 2001
 From: Zahari Doychev <zahari.doychev@intel.com>
 Date: Fri, 18 Feb 2022 09:43:19 +0100
 Subject: tc colmark: new action to support color marking
 
 This is the user space part needed to setup color marking in the offload path.
+Aligned with Kernel 5.15
 ---
- include/linux/tc_act/tc_colmark.h |  45 ++++++
+ include/linux/tc_act/tc_colmark.h |  43 ++++++
+ include/uapi/linux/pkt_cls.h      |   2 +
  tc/Makefile                       |   1 +
  tc/m_colmark.c                    | 227 ++++++++++++++++++++++++++++++
  tc/tc_util.c                      |   2 +-
  tc/tc_util.h                      |   1 +
- 5 files changed, 275 insertions(+), 1 deletion(-)
+ 6 files changed, 275 insertions(+), 1 deletion(-)
  create mode 100644 include/linux/tc_act/tc_colmark.h
  create mode 100644 tc/m_colmark.c
 
 diff --git a/include/linux/tc_act/tc_colmark.h b/include/linux/tc_act/tc_colmark.h
 new file mode 100644
-index 00000000..1b75f775
+index 00000000..158c83c7
 --- /dev/null
 +++ b/include/linux/tc_act/tc_colmark.h
-@@ -0,0 +1,45 @@
+@@ -0,0 +1,43 @@
 +/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
 +#ifndef __LINUX_TC_COLMARK_H
 +#define __LINUX_TC_COLMARK_H
 +
 +#include <linux/pkt_cls.h>
-+
-+#define TCA_ACT_COLMARK			27
 +
 +#define COLMARK_F_MODE			0x1
 +#define COLMARK_F_DROP_PRECEDENCE	0x2
@@ -65,11 +65,31 @@ index 00000000..1b75f775
 +#define TCA_COLMARK_MAX (__TCA_COLMARK_MAX - 1)
 +
 +#endif
+diff --git a/include/uapi/linux/pkt_cls.h b/include/uapi/linux/pkt_cls.h
+index 4e059057..8d458799 100644
+--- a/include/uapi/linux/pkt_cls.h
++++ b/include/uapi/linux/pkt_cls.h
+@@ -114,6 +114,7 @@ enum {
+ #define TCA_ACT_SIMP 22
+ #define TCA_ACT_IFE 25
+ #define TCA_ACT_SAMPLE 26
++#define TCA_ACT_COLMARK 27
+ 
+ /* Action type identifiers*/
+ enum tca_id {
+@@ -135,6 +136,7 @@ enum tca_id {
+ 	TCA_ID_SIMP = TCA_ACT_SIMP,
+ 	TCA_ID_IFE = TCA_ACT_IFE,
+ 	TCA_ID_SAMPLE = TCA_ACT_SAMPLE,
++	TCA_ID_COLMARK = TCA_ACT_COLMARK,
+ 	TCA_ID_CTINFO,
+ 	TCA_ID_MPLS,
+ 	TCA_ID_CT,
 diff --git a/tc/Makefile b/tc/Makefile
-index a3959b0d..f4c90597 100644
+index 1d375d7a..b972a2f3 100644
 --- a/tc/Makefile
 +++ b/tc/Makefile
-@@ -82,6 +82,7 @@ TCMODULES += q_etf.o
+@@ -81,6 +81,7 @@ TCMODULES += q_etf.o
  TCMODULES += q_taprio.o
  TCMODULES += q_plug.o
  TCMODULES += q_ets.o
@@ -311,10 +331,10 @@ index 00000000..4be5c860
 +	.print_aopt = print_colmark,
 +};
 diff --git a/tc/tc_util.c b/tc/tc_util.c
-index 48065897..be057029 100644
+index 0714134e..53ea549e 100644
 --- a/tc/tc_util.c
 +++ b/tc/tc_util.c
-@@ -298,7 +298,7 @@ void print_devname(enum output_type type, int ifindex)
+@@ -294,7 +294,7 @@ void print_devname(enum output_type type, int ifindex)
  			   "dev", "%s ", ifname);
  }
  
@@ -324,7 +344,7 @@ index 48065897..be057029 100644
  	static char buf[64];
  
 diff --git a/tc/tc_util.h b/tc/tc_util.h
-index b197bcdd..8d25b660 100644
+index c535dccb..7b9e2417 100644
 --- a/tc/tc_util.h
 +++ b/tc/tc_util.h
 @@ -121,6 +121,7 @@ int prio_print_opt(struct qdisc_util *qu, FILE *f, struct rtattr *opt);
@@ -335,3 +355,6 @@ index b197bcdd..8d25b660 100644
  int action_a2n(char *arg, int *result, bool allow_num);
  
  bool tc_qdisc_block_exists(__u32 block_index);
+-- 
+2.43.0
+

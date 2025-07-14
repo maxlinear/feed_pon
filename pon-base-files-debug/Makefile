@@ -30,6 +30,16 @@ define Package/$(PKG_NAME)/description
  This package contains files and scripts for debugging PON systems.
 endef
 
+define Package/$(PKG_NAME)/config
+	menu "configuration"
+	depends on PACKAGE_$(PKG_NAME)
+	config PON_BASE_FILES_DEBUG_UNALIGNED_ACTION_QUIET
+		bool "enable MIPS unaligned access quiet"
+		help
+			This will set MIPS unaligned access action QUIET
+	endmenu
+endef
+
 define Build/Prepare
 endef
 
@@ -49,6 +59,9 @@ endif
 
 ifeq ($(CONFIG_TARGET_intel_mips_prx300),y)
 	$(CP) ./files-prx/* $(1)/
+ifeq ($(CONFIG_PON_BASE_FILES_DEBUG_UNALIGNED_ACTION_QUIET),y)
+	$(SED) 's,$$$$ACTION_SHOW,$$$$ACTION_QUIET,g' $(1)/etc/init.d/unaligned_action.sh
+endif
 endif
 
 endef

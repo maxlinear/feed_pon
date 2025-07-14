@@ -1,0 +1,6 @@
+package 'optic'
+
+config optic 'common'
+	option 'mode' 'gpon'
+	option 'rogue_auto_en' '0'
+	option 'sd_polarity' '0'

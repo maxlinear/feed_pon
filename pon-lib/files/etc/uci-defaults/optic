@@ -16,7 +16,7 @@ prx321-sfu* | prx321-hgu*)
 	uci set optic.common.loop_timing_power_save=0
 	;;
 # Use high power loop timing mode on all URX boards by default
-lgm* | urx851*)
+lgm* | urx851* | octopus*)
 	uci set optic.common.loop_timing_power_save=0
 	;;
 esac

@@ -1,0 +1,5 @@
+package 'optic'
+
+config optic 'common'
+	option 'mode' 'gpon'
+	option 'sd_polarity' '1'

@@ -8,10 +8,10 @@ Subject: Fix printing tc qdisc red flags
  1 file changed, 4 insertions(+), 19 deletions(-)
 
 diff --git a/tc/tc_red.c b/tc/tc_red.c
-index 88f5ff35..44e77d6d 100644
+index 700a9212..861ffb16 100644
 --- a/tc/tc_red.c
 +++ b/tc/tc_red.c
-@@ -102,23 +102,8 @@ int tc_red_eval_idle_damping(int Wlog, unsigned int avpkt, unsigned int bps, __u
+@@ -97,23 +97,8 @@ int tc_red_eval_idle_damping(int Wlog, unsigned int avpkt, unsigned int bps, __u
  
  void tc_red_print_flags(__u32 flags)
  {

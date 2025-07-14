@@ -15,19 +15,18 @@ look at the setting like this:
   5: eth0_0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9582 master sw257 state forwarding priority 32 cost 2 learning_limit -1
       hairpin off guard off root_block off fastleave off learning on flood on mcast_flood on isolated off dest_lookup off src_lookup on eth0_0
 ---
- bridge/link.c                | 28 +++++++++++++++++++++++++++-
+ bridge/link.c                | 26 ++++++++++++++++++++++++++
  include/uapi/linux/if_link.h |  2 ++
- 2 files changed, 29 insertions(+), 1 deletion(-)
+ 2 files changed, 28 insertions(+)
 
 diff --git a/bridge/link.c b/bridge/link.c
-index 29bab088..877e85ea 100644
+index a967c3b1..f9f5624a 100644
 --- a/bridge/link.c
 +++ b/bridge/link.c
-@@ -180,6 +180,14 @@ static void print_protinfo(FILE *fp, struct rtattr *attr)
- 		if (prtb[IFLA_BRPORT_ISOLATED])
- 			print_on_off(PRINT_ANY, "isolated", "isolated %s ",
- 				     rta_getattr_u8(prtb[IFLA_BRPORT_ISOLATED]));
-+
+@@ -204,6 +204,13 @@ static void print_protinfo(FILE *fp, struct rtattr *attr)
+ 			print_uint(PRINT_ANY, "mcast_max_groups",
+ 				   "mcast_max_groups %u ", rta_getattr_u32(at));
+ 		}
 +		if (prtb[IFLA_BRPORT_DEST_LOOKUP])
 +			print_on_off(PRINT_ANY, "dest_lookup", "dest_lookup %s ",
 +				    rta_getattr_u8(prtb[IFLA_BRPORT_DEST_LOOKUP]));
@@ -38,26 +37,26 @@ index 29bab088..877e85ea 100644
  	} else
  		print_stp_state(rta_getattr_u8(attr));
  }
-@@ -281,6 +289,8 @@ static void usage(void)
- 		"                               [ neigh_suppress {on | off} ]\n"
- 		"                               [ vlan_tunnel {on | off} ]\n"
+@@ -306,6 +313,8 @@ static void usage(void)
  		"                               [ isolated {on | off} ]\n"
+ 		"                               [ locked {on | off} ]\n"
+ 		"                               [ mab {on | off} ]\n"
 +		"                               [ dest_lookup {on | off} ]\n"
 +		"                               [ src_lookup {on | off} ]\n"
  		"                               [ hwmode {vepa | veb} ]\n"
  		"                               [ backup_port DEVICE ] [ nobackup_port ]\n"
  		"                               [ self ] [ master ]\n"
-@@ -310,6 +320,8 @@ static int brlink_modify(int argc, char **argv)
- 	__s8 mcast_flood = -1;
- 	__s8 mcast_to_unicast = -1;
+@@ -340,6 +349,8 @@ static int brlink_modify(int argc, char **argv)
+ 	__s8 locked = -1;
+ 	__s8 macauth = -1;
  	__s8 isolated = -1;
 +	__s8 dest_lookup = -1;
 +	__s8 src_lookup = -1;
  	__s8 hairpin = -1;
  	__s8 bpdu_guard = -1;
  	__s8 fast_leave = -1;
-@@ -425,6 +437,17 @@ static int brlink_modify(int argc, char **argv)
- 			isolated = parse_on_off("isolated", *argv, &ret);
+@@ -477,6 +488,17 @@ static int brlink_modify(int argc, char **argv)
+ 			macauth = parse_on_off("mab", *argv, &ret);
  			if (ret)
  				return ret;
 +		} else if (strcmp(*argv, "dest_lookup") == 0) {
@@ -74,11 +73,7 @@ index 29bab088..877e85ea 100644
  		} else if (strcmp(*argv, "backup_port") == 0) {
  			NEXT_ARG();
  			backup_port_idx = ll_name_to_index(*argv);
-@@ -502,10 +525,13 @@ static int brlink_modify(int argc, char **argv)
- 			 vlan_tunnel);
- 	if (isolated != -1)
- 		addattr8(&req.n, sizeof(req), IFLA_BRPORT_ISOLATED, isolated);
--
+@@ -573,6 +595,10 @@ static int brlink_modify(int argc, char **argv)
  	if (backup_port_idx != -1)
  		addattr32(&req.n, sizeof(req), IFLA_BRPORT_BACKUP_PORT,
  			  backup_port_idx);
@@ -90,12 +85,12 @@ index 29bab088..877e85ea 100644
  	addattr_nest_end(&req.n, nest);
  
 diff --git a/include/uapi/linux/if_link.h b/include/uapi/linux/if_link.h
-index 3dc6d1e7..744dd877 100644
+index 6aeb9732..6fd99cbf 100644
 --- a/include/uapi/linux/if_link.h
 +++ b/include/uapi/linux/if_link.h
-@@ -535,6 +535,8 @@ enum {
- 	IFLA_BRPORT_MCAST_EHT_HOSTS_LIMIT,
- 	IFLA_BRPORT_MCAST_EHT_HOSTS_CNT,
+@@ -568,6 +568,8 @@ enum {
+ 	IFLA_BRPORT_MCAST_N_GROUPS,
+ 	IFLA_BRPORT_MCAST_MAX_GROUPS,
  	IFLA_BRPORT_LEARNING_LIMIT,
 +	IFLA_BRPORT_DEST_LOOKUP,
 +	IFLA_BRPORT_SRC_LOOKUP,

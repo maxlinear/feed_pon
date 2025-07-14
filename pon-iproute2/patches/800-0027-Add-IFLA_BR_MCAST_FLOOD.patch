@@ -14,10 +14,10 @@ Set it like this:
  2 files changed, 16 insertions(+)
 
 diff --git a/include/uapi/linux/if_link.h b/include/uapi/linux/if_link.h
-index 744dd877..ad89b068 100644
+index 6fd99cbf..99c455cc 100644
 --- a/include/uapi/linux/if_link.h
 +++ b/include/uapi/linux/if_link.h
-@@ -479,6 +479,7 @@ enum {
+@@ -508,6 +508,7 @@ enum {
  	IFLA_BR_VLAN_STATS_PER_PORT,
  	IFLA_BR_MULTI_BOOLOPT,
  	IFLA_BR_MCAST_QUERIER_STATE,
@@ -26,10 +26,10 @@ index 744dd877..ad89b068 100644
  };
  
 diff --git a/ip/iplink_bridge.c b/ip/iplink_bridge.c
-index d12fd055..dbb8cb8a 100644
+index 7e4e62c8..6e1d6e3e 100644
 --- a/ip/iplink_bridge.c
 +++ b/ip/iplink_bridge.c
-@@ -59,6 +59,7 @@ static void print_explain(FILE *f)
+@@ -57,6 +57,7 @@ static void print_explain(FILE *f)
  		"		  [ mcast_stats_enabled MCAST_STATS_ENABLED ]\n"
  		"		  [ mcast_igmp_version IGMP_VERSION ]\n"
  		"		  [ mcast_mld_version MLD_VERSION ]\n"
@@ -37,7 +37,7 @@ index d12fd055..dbb8cb8a 100644
  		"		  [ nf_call_iptables NF_CALL_IPTABLES ]\n"
  		"		  [ nf_call_ip6tables NF_CALL_IP6TABLES ]\n"
  		"		  [ nf_call_arptables NF_CALL_ARPTABLES ]\n"
-@@ -341,6 +342,14 @@ static int bridge_parse_opt(struct link_util *lu, int argc, char **argv,
+@@ -364,6 +365,14 @@ static int bridge_parse_opt(struct link_util *lu, int argc, char **argv,
  				invarg("invalid mcast_mld_version", *argv);
  			addattr8(n, 1024, IFLA_BR_MCAST_MLD_VERSION,
  				  mld_version);
@@ -52,7 +52,7 @@ index d12fd055..dbb8cb8a 100644
  		} else if (matches(*argv, "nf_call_iptables") == 0) {
  			__u8 nf_call_ipt;
  
-@@ -655,6 +664,12 @@ static void bridge_print_opt(struct link_util *lu, FILE *f, struct rtattr *tb[])
+@@ -699,6 +708,12 @@ static void bridge_print_opt(struct link_util *lu, FILE *f, struct rtattr *tb[])
  			   "mcast_mld_version %u ",
  			   rta_getattr_u8(tb[IFLA_BR_MCAST_MLD_VERSION]));
  

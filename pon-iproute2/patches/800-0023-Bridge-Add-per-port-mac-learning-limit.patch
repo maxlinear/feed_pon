@@ -11,7 +11,7 @@ be learned per port.
  2 files changed, 15 insertions(+)
 
 diff --git a/bridge/link.c b/bridge/link.c
-index 205a2fe7..29bab088 100644
+index 9dd7475d..a967c3b1 100644
 --- a/bridge/link.c
 +++ b/bridge/link.c
 @@ -123,6 +123,11 @@ static void print_protinfo(FILE *fp, struct rtattr *attr)
@@ -26,7 +26,7 @@ index 205a2fe7..29bab088 100644
  		if (!show_details)
  			return;
  
-@@ -263,6 +268,7 @@ static void usage(void)
+@@ -283,6 +288,7 @@ static void usage(void)
  {
  	fprintf(stderr,
  		"Usage: bridge link set dev DEV [ cost COST ] [ priority PRIO ] [ state STATE ]\n"
@@ -34,7 +34,7 @@ index 205a2fe7..29bab088 100644
  		"                               [ guard {on | off} ]\n"
  		"                               [ hairpin {on | off} ]\n"
  		"                               [ fastleave {on | off} ]\n"
-@@ -310,6 +316,7 @@ static int brlink_modify(int argc, char **argv)
+@@ -340,6 +346,7 @@ static int brlink_modify(int argc, char **argv)
  	__s8 root_block = -1;
  	__u32 cost = 0;
  	__s16 priority = -1;
@@ -42,7 +42,7 @@ index 205a2fe7..29bab088 100644
  	__s8 state = -1;
  	__s16 mode = -1;
  	__u16 flags = 0;
-@@ -371,6 +378,9 @@ static int brlink_modify(int argc, char **argv)
+@@ -413,6 +420,9 @@ static int brlink_modify(int argc, char **argv)
  		} else if (strcmp(*argv, "priority") == 0) {
  			NEXT_ARG();
  			priority = atoi(*argv);
@@ -52,7 +52,7 @@ index 205a2fe7..29bab088 100644
  		} else if (strcmp(*argv, "state") == 0) {
  			NEXT_ARG();
  			char *endptr;
-@@ -477,6 +487,10 @@ static int brlink_modify(int argc, char **argv)
+@@ -538,6 +548,10 @@ static int brlink_modify(int argc, char **argv)
  	if (priority >= 0)
  		addattr16(&req.n, sizeof(req), IFLA_BRPORT_PRIORITY, priority);
  
@@ -64,13 +64,13 @@ index 205a2fe7..29bab088 100644
  		addattr8(&req.n, sizeof(req), IFLA_BRPORT_STATE, state);
  
 diff --git a/include/uapi/linux/if_link.h b/include/uapi/linux/if_link.h
-index 1d4ed60b..3dc6d1e7 100644
+index d61bd32d..6aeb9732 100644
 --- a/include/uapi/linux/if_link.h
 +++ b/include/uapi/linux/if_link.h
-@@ -534,6 +534,7 @@ enum {
- 	IFLA_BRPORT_MRP_IN_OPEN,
- 	IFLA_BRPORT_MCAST_EHT_HOSTS_LIMIT,
- 	IFLA_BRPORT_MCAST_EHT_HOSTS_CNT,
+@@ -567,6 +567,7 @@ enum {
+ 	IFLA_BRPORT_MAB,
+ 	IFLA_BRPORT_MCAST_N_GROUPS,
+ 	IFLA_BRPORT_MCAST_MAX_GROUPS,
 +	IFLA_BRPORT_LEARNING_LIMIT,
  	__IFLA_BRPORT_MAX
  };

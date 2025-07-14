@@ -1,0 +1,316 @@
+diff --git a/include/linux-private/linux/if_link.h b/include/linux-private/linux/if_link.h
+index e5084fb0..f25cdee0 100644
+--- a/include/linux-private/linux/if_link.h
++++ b/include/linux-private/linux/if_link.h
+@@ -73,6 +73,7 @@ struct rtnl_link_stats64 {
+ 	__u64	tx_compressed;
+ 
+ 	__u64	rx_nohandler;		/* dropped, no handler found	*/
++	__u64	rx_otherhost_dropped;
+ };
+ 
+ /* The struct should be in sync with struct ifmap */
+@@ -166,6 +167,26 @@ enum {
+ 	IFLA_NEW_IFINDEX,
+ 	IFLA_MIN_MTU,
+ 	IFLA_MAX_MTU,
++	IFLA_PROP_LIST,
++	IFLA_ALT_IFNAME, /* Alternative ifname */
++	IFLA_PERM_ADDRESS,
++	IFLA_PROTO_DOWN_REASON,
++
++	/* device (sysfs) name as parent, used instead
++	 * of IFLA_LINK where there's no parent netdev
++	 */
++	IFLA_PARENT_DEV_NAME,
++	IFLA_PARENT_DEV_BUS_NAME,
++	IFLA_GRO_MAX_SIZE,
++	IFLA_TSO_MAX_SIZE,
++	IFLA_TSO_MAX_SEGS,
++	IFLA_ALLMULTI,		/* Allmulti count: > 0 means acts ALLMULTI */
++
++	IFLA_DEVLINK_PORT,
++
++	IFLA_GSO_IPV4_MAX_SIZE,
++	IFLA_GRO_IPV4_MAX_SIZE,
++
+ 	__IFLA_MAX
+ };
+ 
+@@ -224,6 +245,7 @@ enum {
+ 	IFLA_INET6_ICMP6STATS,	/* statistics (icmpv6)		*/
+ 	IFLA_INET6_TOKEN,	/* device token			*/
+ 	IFLA_INET6_ADDR_GEN_MODE, /* implicit address generator mode */
++	IFLA_INET6_RA_MTU,	/* mtu carried in the RA message */
+ 	__IFLA_INET6_MAX
+ };
+ 
+@@ -286,6 +308,7 @@ enum {
+ 	IFLA_BR_MCAST_MLD_VERSION,
+ 	IFLA_BR_VLAN_STATS_PER_PORT,
+ 	IFLA_BR_MULTI_BOOLOPT,
++	IFLA_BR_MCAST_QUERIER_STATE,
+ 	IFLA_BR_MCAST_FLOOD,
+ 	__IFLA_BR_MAX,
+ };
+@@ -351,6 +374,10 @@ enum {
+ 	IFLA_BRPORT_MRP_IN_OPEN,
+ 	IFLA_BRPORT_MCAST_EHT_HOSTS_LIMIT,
+ 	IFLA_BRPORT_MCAST_EHT_HOSTS_CNT,
++	IFLA_BRPORT_LOCKED,
++	IFLA_BRPORT_MAB,
++	IFLA_BRPORT_MCAST_N_GROUPS,
++	IFLA_BRPORT_MCAST_MAX_GROUPS,
+ 	IFLA_BRPORT_LEARNING_LIMIT,
+ 	IFLA_BRPORT_DEST_LOOKUP,
+ 	IFLA_BRPORT_SRC_LOOKUP,
+@@ -418,6 +445,8 @@ enum {
+ 	IFLA_MACVLAN_MACADDR,
+ 	IFLA_MACVLAN_MACADDR_DATA,
+ 	IFLA_MACVLAN_MACADDR_COUNT,
++	IFLA_MACVLAN_BC_QUEUE_LEN,
++	IFLA_MACVLAN_BC_QUEUE_LEN_USED,
+ 	__IFLA_MACVLAN_MAX,
+ };
+ 
+@@ -439,6 +468,7 @@ enum macvlan_macaddr_mode {
+ };
+ 
+ #define MACVLAN_FLAG_NOPROMISC	1
++#define MACVLAN_FLAG_NODST	2 /* skip dst macvlan if matching src macvlan */
+ 
+ /* VRF section */
+ enum {
+@@ -474,6 +504,7 @@ enum {
+ 	IFLA_MACSEC_REPLAY_PROTECT,
+ 	IFLA_MACSEC_VALIDATION,
+ 	IFLA_MACSEC_PAD,
++	IFLA_MACSEC_OFFLOAD,
+ 	__IFLA_MACSEC_MAX,
+ };
+ 
+@@ -484,6 +515,7 @@ enum {
+ 	IFLA_XFRM_UNSPEC,
+ 	IFLA_XFRM_LINK,
+ 	IFLA_XFRM_IF_ID,
++	IFLA_XFRM_COLLECT_METADATA,
+ 	__IFLA_XFRM_MAX
+ };
+ 
+@@ -548,6 +580,8 @@ enum {
+ 	IFLA_VXLAN_LABEL,
+ 	IFLA_VXLAN_GPE,
+ 	IFLA_VXLAN_TTL_INHERIT,
++	IFLA_VXLAN_DF,
++	IFLA_VXLAN_VNIFILTER, /* only applicable with COLLECT_METADATA mode */
+ 	__IFLA_VXLAN_MAX
+ };
+ #define IFLA_VXLAN_MAX	(__IFLA_VXLAN_MAX - 1)
+@@ -571,6 +605,9 @@ enum {
+ 	IFLA_GENEVE_UDP_ZERO_CSUM6_TX,
+ 	IFLA_GENEVE_UDP_ZERO_CSUM6_RX,
+ 	IFLA_GENEVE_LABEL,
++	IFLA_GENEVE_TTL_INHERIT,
++	IFLA_GENEVE_DF,
++	IFLA_GENEVE_INNER_PROTO_INHERIT,
+ 	__IFLA_GENEVE_MAX
+ };
+ #define IFLA_GENEVE_MAX	(__IFLA_GENEVE_MAX - 1)
+@@ -596,6 +633,8 @@ enum {
+ 	IFLA_GTP_FD1,
+ 	IFLA_GTP_PDP_HASHSIZE,
+ 	IFLA_GTP_ROLE,
++	IFLA_GTP_CREATE_SOCKETS,
++	IFLA_GTP_RESTART_COUNT,
+ 	__IFLA_GTP_MAX,
+ };
+ #define IFLA_GTP_MAX (__IFLA_GTP_MAX - 1)
+@@ -631,6 +670,10 @@ enum {
+ 	IFLA_BOND_AD_USER_PORT_KEY,
+ 	IFLA_BOND_AD_ACTOR_SYSTEM,
+ 	IFLA_BOND_TLB_DYNAMIC_LB,
++	IFLA_BOND_PEER_NOTIF_DELAY,
++	IFLA_BOND_AD_LACP_ACTIVE,
++	IFLA_BOND_MISSED_MAX,
++	IFLA_BOND_NS_IP6_TARGET,
+ 	__IFLA_BOND_MAX,
+ };
+ 
+@@ -658,6 +701,7 @@ enum {
+ 	IFLA_BOND_SLAVE_AD_AGGREGATOR_ID,
+ 	IFLA_BOND_SLAVE_AD_ACTOR_OPER_PORT_STATE,
+ 	IFLA_BOND_SLAVE_AD_PARTNER_OPER_PORT_STATE,
++	IFLA_BOND_SLAVE_PRIO,
+ 	__IFLA_BOND_SLAVE_MAX,
+ };
+ 
+@@ -689,6 +733,7 @@ enum {
+ 	IFLA_VF_IB_NODE_GUID,	/* VF Infiniband node GUID */
+ 	IFLA_VF_IB_PORT_GUID,	/* VF Infiniband port GUID */
+ 	IFLA_VF_VLAN_LIST,	/* nested list of vlans, option for QinQ */
++	IFLA_VF_BROADCAST,	/* VF broadcast */
+ 	__IFLA_VF_MAX,
+ };
+ 
+diff --git a/include/linux-private/linux/pkt_cls.h b/include/linux-private/linux/pkt_cls.h
+index be382fb0..c5424431 100644
+--- a/include/linux-private/linux/pkt_cls.h
++++ b/include/linux-private/linux/pkt_cls.h
+@@ -16,6 +16,10 @@ enum {
+ 	TCA_ACT_STATS,
+ 	TCA_ACT_PAD,
+ 	TCA_ACT_COOKIE,
++	TCA_ACT_FLAGS,
++	TCA_ACT_HW_STATS,
++	TCA_ACT_USED_HW_STATS,
++	TCA_ACT_IN_HW_COUNT,
+ 	__TCA_ACT_MAX
+ };
+ 
+@@ -63,10 +67,53 @@ enum {
+ #define TC_ACT_GOTO_CHAIN __TC_ACT_EXT(2)
+ #define TC_ACT_EXT_OPCODE_MAX	TC_ACT_GOTO_CHAIN
+ 
++/* These macros are put here for binary compatibility with userspace apps that
++ * make use of them. For kernel code and new userspace apps, use the TCA_ID_*
++ * versions.
++ */
++#define TCA_ACT_GACT 5
++#define TCA_ACT_IPT 6
++#define TCA_ACT_PEDIT 7
++#define TCA_ACT_MIRRED 8
++#define TCA_ACT_NAT 9
++#define TCA_ACT_XT 10
++#define TCA_ACT_SKBEDIT 11
++#define TCA_ACT_VLAN 12
++#define TCA_ACT_BPF 13
++#define TCA_ACT_CONNMARK 14
++#define TCA_ACT_SKBMOD 15
++#define TCA_ACT_CSUM 16
++#define TCA_ACT_TUNNEL_KEY 17
++#define TCA_ACT_SIMP 22
++#define TCA_ACT_IFE 25
++#define TCA_ACT_SAMPLE 26
++#define TCA_ACT_COLMARK 27
++
+ /* Action type identifiers*/
+ enum {
+ 	TCA_ID_UNSPEC=0,
+ 	TCA_ID_POLICE=1,
++	TCA_ID_GACT = TCA_ACT_GACT,
++	TCA_ID_IPT = TCA_ACT_IPT,
++	TCA_ID_PEDIT = TCA_ACT_PEDIT,
++	TCA_ID_MIRRED = TCA_ACT_MIRRED,
++	TCA_ID_NAT = TCA_ACT_NAT,
++	TCA_ID_XT = TCA_ACT_XT,
++	TCA_ID_SKBEDIT = TCA_ACT_SKBEDIT,
++	TCA_ID_VLAN = TCA_ACT_VLAN,
++	TCA_ID_BPF = TCA_ACT_BPF,
++	TCA_ID_CONNMARK = TCA_ACT_CONNMARK,
++	TCA_ID_SKBMOD = TCA_ACT_SKBMOD,
++	TCA_ID_CSUM = TCA_ACT_CSUM,
++	TCA_ID_TUNNEL_KEY = TCA_ACT_TUNNEL_KEY,
++	TCA_ID_SIMP = TCA_ACT_SIMP,
++	TCA_ID_IFE = TCA_ACT_IFE,
++	TCA_ID_SAMPLE = TCA_ACT_SAMPLE,
++	TCA_ID_COLMARK = TCA_ACT_COLMARK,
++	TCA_ID_CTINFO,
++	TCA_ID_MPLS,
++	TCA_ID_CT,
++	TCA_ID_GATE,
+ 	/* other actions go here */
+ 	__TCA_ID_MAX=255
+ };
+@@ -120,6 +167,10 @@ enum {
+ 	TCA_POLICE_RESULT,
+ 	TCA_POLICE_TM,
+ 	TCA_POLICE_PAD,
++	TCA_POLICE_RATE64,
++	TCA_POLICE_PEAKRATE64,
++	TCA_POLICE_PKTRATE64,
++	TCA_POLICE_PKTBURST64,
+ 	__TCA_POLICE_MAX
+ #define TCA_POLICE_RESULT TCA_POLICE_RESULT
+ };
+@@ -157,6 +208,7 @@ enum {
+ 	TCA_U32_MARK,
+ 	TCA_U32_FLAGS,
+ 	TCA_U32_PAD,
++	TCA_U32_EXTMARK,
+ 	__TCA_U32_MAX
+ };
+ 
+@@ -339,6 +391,8 @@ enum {
+ 	TCA_BASIC_EMATCHES,
+ 	TCA_BASIC_ACT,
+ 	TCA_BASIC_POLICE,
++	TCA_BASIC_PCNT,
++	TCA_BASIC_PAD,
+ 	__TCA_BASIC_MAX
+ };
+ 
+@@ -483,6 +537,36 @@ enum {
+ 	TCA_FLOWER_KEY_ENC_OPTS,
+ 	TCA_FLOWER_KEY_ENC_OPTS_MASK,
+ 
++	TCA_FLOWER_IN_HW_COUNT,
++
++	TCA_FLOWER_KEY_PORT_SRC_MIN,	/* be16 */
++	TCA_FLOWER_KEY_PORT_SRC_MAX,	/* be16 */
++	TCA_FLOWER_KEY_PORT_DST_MIN,	/* be16 */
++	TCA_FLOWER_KEY_PORT_DST_MAX,	/* be16 */
++
++	TCA_FLOWER_KEY_CT_STATE,	/* u16 */
++	TCA_FLOWER_KEY_CT_STATE_MASK,	/* u16 */
++	TCA_FLOWER_KEY_CT_ZONE,		/* u16 */
++	TCA_FLOWER_KEY_CT_ZONE_MASK,	/* u16 */
++	TCA_FLOWER_KEY_CT_MARK,		/* u32 */
++	TCA_FLOWER_KEY_CT_MARK_MASK,	/* u32 */
++	TCA_FLOWER_KEY_CT_LABELS,	/* u128 */
++	TCA_FLOWER_KEY_CT_LABELS_MASK,	/* u128 */
++
++	TCA_FLOWER_KEY_MPLS_OPTS,
++
++	TCA_FLOWER_KEY_HASH,		/* u32 */
++	TCA_FLOWER_KEY_HASH_MASK,	/* u32 */
++
++	TCA_FLOWER_KEY_NUM_OF_VLANS,    /* u8 */
++
++	TCA_FLOWER_KEY_PPPOE_SID,	/* be16 */
++	TCA_FLOWER_KEY_PPP_PROTO,	/* be16 */
++
++	TCA_FLOWER_KEY_L2TPV3_SID,	/* be32 */
++
++	TCA_FLOWER_KEY_CFM,
++
+ 	__TCA_FLOWER_MAX,
+ };
+ 
+@@ -494,6 +578,18 @@ enum {
+ 					 * TCA_FLOWER_KEY_ENC_OPT_GENEVE_
+ 					 * attributes
+ 					 */
++	TCA_FLOWER_KEY_ENC_OPTS_VXLAN,	/* Nested
++					 * TCA_FLOWER_KEY_ENC_OPT_VXLAN_
++					 * attributes
++					 */
++	TCA_FLOWER_KEY_ENC_OPTS_ERSPAN,	/* Nested
++					 * TCA_FLOWER_KEY_ENC_OPT_ERSPAN_
++					 * attributes
++					 */
++	TCA_FLOWER_KEY_ENC_OPTS_GTP,	/* Nested
++					 * TCA_FLOWER_KEY_ENC_OPT_GTP_
++					 * attributes
++					 */
+ 	__TCA_FLOWER_KEY_ENC_OPTS_MAX,
+ };
+ 
+@@ -523,6 +619,8 @@ enum {
+ 	TCA_MATCHALL_CLASSID,
+ 	TCA_MATCHALL_ACT,
+ 	TCA_MATCHALL_FLAGS,
++	TCA_MATCHALL_PCNT,
++	TCA_MATCHALL_PAD,
+ 	__TCA_MATCHALL_MAX,
+ };
+ 

@@ -64,16 +64,6 @@ define KernelPackage/$(PKG_NAME)/description
    The PON Multicast driver for the PON device
 endef
 
-define KernelPackage/pon-mcc-drv-filter
-  TITLE:=PON multicast filter driver
-  SUBMENU:=MaxLinear
-  DEPENDS:=+kmod-nf-reject
-  KCONFIG:=CONFIG_DP_MCAST_BRIDGE_FILTER
-  FILES:=$(LINUX_DIR)/drivers/net/datapath/bridge_filter/mcast_bridge_filter.ko
-  AUTOLOAD:=$(call AutoProbe,mcast_bridge_filter)
-endef
-
-
 define KernelPackage/$(PKG_NAME)/config
 $(call Package/$(PKG_NAME_PREF)$(PKG_NAME)/override_source_path)
 	config PACKAGE_kmod-pon-mcc-drv_KCOV_INSTRUMENT
@@ -145,6 +135,5 @@ endef
 
 $(eval $(call KernelPackage,$(PKG_NAME)))
 $(eval $(call KernelPackage,$(PKG_NAME)-chk))
-$(eval $(call KernelPackage,pon-mcc-drv-filter))
 $(eval $(call BuildPackage,$(PKG_NAME_LIB)))
 $(eval $(call BuildPackage,$(PKG_NAME_CLI)))

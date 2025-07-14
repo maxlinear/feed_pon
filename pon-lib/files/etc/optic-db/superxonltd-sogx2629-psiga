@@ -1,0 +1,8 @@
+# This transceiver operates with default settings.
+# Configuration is only necessary to prevent incorrect detection as "GPON" mode.
+
+package 'optic'
+
+config 'optic' 'common'
+	option 'mode' 'xgpon'
+	option 'sd_polarity' '0'

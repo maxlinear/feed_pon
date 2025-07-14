@@ -1,0 +1,9 @@
+package 'optic'
+
+config 'optic' 'common'
+	option 'mode' 'xgspon'
+	option 'bias_hold_time' '38580'
+	option 'bias_setup_time' '25720'
+	option 'burst_idle_pattern' '0x00FFFF00'
+	option 'tx_pup_mode' '1'
+	option 'sd_polarity' '0'

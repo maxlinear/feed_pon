@@ -30,16 +30,21 @@ include $(INCLUDE_DIR)/package.mk
 # firmware details:
 PKG_FW_VERSION:=v1.0.2.1.24
 # dummy url
-PKG_FW_URL:=http://localhost
-PKG_FW_PATH:=prx_i2c_aca_fw-$(PKG_FW_VERSION)
-PKG_FW_FILENAME:=$(PKG_FW_PATH).tar.gz
-
+PKG_FW_SOURCE_NAME:=prx_i2c_aca_fw_binary
+PKG_FW_PATH:=$(PKG_FW_SOURCE_NAME)-$(PKG_FW_VERSION)
+PKG_FW_SOURCE_URL:=$(CONFIG_UGW_PKG_SOURCE_URL)/$(PKG_PROJECT)/$(PKG_FW_SOURCE_NAME).git
+PKG_FW_MIRROR_HASH:=a25e7c04c3de184ab725b5412d1f33e34657e67ba54eb48530279ca0fdce2e98
+PKG_FW_FILE_NAME:=$(PKG_FW_PATH).tar.gz
 FW_BIN_NAME:=prx_i2c_aca_fw.bin
 
 define Download/fw
-  FILE:=$(PKG_FW_FILENAME)
-  URL:=$(PKG_FW_URL)
-  HASH:=1505dacce12cb053c71ac3de29c0981e347d15d9e2a92bc536aee14510635567
+  PROTO:=git
+  VERSION:=$(PKG_FW_VERSION)
+  SOURCE_VERSION:=$(PKG_FW_VERSION)
+  SUBDIR:=$(PKG_FW_PATH)
+  FILE:=$(PKG_FW_FILE_NAME)
+  URL:=$(PKG_FW_SOURCE_URL)
+  MIRROR_HASH:=$(PKG_FW_MIRROR_HASH)
 endef
 $(eval $(call Download,fw))
 
@@ -92,7 +97,7 @@ endef
 
 define KernelPackage/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/lib/firmware
-	tar xfz $(DL_DIR)/$(PKG_FW_FILENAME) -C $(PKG_BUILD_DIR)
+	tar xfz $(DL_DIR)/$(PKG_FW_FILE_NAME) -C $(PKG_BUILD_DIR)
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/$(PKG_FW_PATH)/aca_fw.bin \
 		$(1)/lib/firmware/$(FW_BIN_NAME)
 	# if a files folder exist, also copy it:
