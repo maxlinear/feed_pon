@@ -5,10 +5,13 @@
 # Copyright (C) 2019 - 2020 Intel Corporation
 # Copyright (c) 2021 - 2025 Maxlinear Inc.
 
+# all UPPERCASE variables are global and expected to be set also when sourcing
+# this file into other script or current shell
+
 OPTIC_DB_LOCATION="/etc/optic-db"
 SERDES_DB_LOCATION="/etc/serdes-db"
 
-source /lib/pon.sh
+. /lib/pon.sh
 
 log_console() {
     echo "$@" > /dev/console
@@ -50,11 +53,11 @@ append() {
 image_version_get() {
     # prefer the PON version, but if it is not there use the URDK version
     if [ -f /etc/pon.ver ]; then
-        image_version=$(cat /etc/pon.ver)
+        IMAGE_VERSION=$(cat /etc/pon.ver)
     elif [ -f /etc/version ]; then
-        image_version=$(cat /etc/version)
+        IMAGE_VERSION=$(cat /etc/version)
     else
-        image_version=""
+        IMAGE_VERSION=""
     fi
 }
 
@@ -192,8 +195,46 @@ update_ponmode() {
     fi
 }
 
-EEPROM_PATH="$(uci get optic.sfp_eeprom.serial_id)"
-[ -z "$EEPROM_PATH" ] && exit 1
+check_optic_change() {
+    local optic_version optic_transceiver optic_change
+
+    optic_version=$(uci -q get optic.common.version)
+    optic_transceiver=$(uci -q get optic.common.transceiver_name)
+    [ "$optic_version" != "$IMAGE_VERSION" ] && optic_change=1
+    [ "$optic_transceiver" != "$TRANSCEIVER_NAME" ] && optic_change=1
+
+    if [ "$optic_change" ]; then
+        # Delete previous mode and transceiver configs.
+        for opt in optic.common.mode optic.offsets optic.gpon optic.xgspon optic.xgpon optic.ngpon2_2G5 optic.ngpon2_10G ; do
+            uci -q delete $opt;
+        done
+        config_apply optic "$OPTIC_DB_LOCATION/default"
+        config_apply optic "$OPTIC_DB_LOCATION/default-$BOARD_NAME"
+        config_apply optic $(optic_files_get "$BOARD_NAME")
+        uci set optic.common.version="$IMAGE_VERSION"
+        uci set optic.common.transceiver_name="$TRANSCEIVER_NAME"
+        update_ponmode
+        uci commit optic
+    fi
+}
+
+check_serdes_change() {
+    local serdes_version serdes_change
+
+    # we don't have a serdes config for specific transceivers yet.
+    # In case we will get this, the handling here needs to be extended like above.
+    serdes_version=$(uci -q get serdes.generic.version)
+    [ "$serdes_version" != "$IMAGE_VERSION" ] && serdes_change=1
+
+    if [ "$serdes_change" ]; then
+        config_apply serdes $(serdes_files_get "$board_name")
+        uci set serdes.generic.version="$IMAGE_VERSION"
+        uci commit serdes
+    fi
+}
+
+EEPROM_PATH="$(uci -q get optic.sfp_eeprom.serial_id)"
+[ -z "$EEPROM_PATH" ] && return 1
 
 image_version_get
 
@@ -204,36 +245,12 @@ else
     READ_EEPROM=read_eeprom_bs1
 fi
 
-# get first name (most detailed) as reference
-transceiver_name=$(transceiver_names_get | head -n1)
-board_name="$(pon_board_base_name)"
+# get first transceiver name (most detailed) as reference
+TRANSCEIVER_NAME=$(transceiver_names_get | head -n1)
+BOARD_NAME="$(pon_board_base_name)"
 
-optic_version=$(uci -q get optic.common.version)
-optic_transceiver=$(uci -q get optic.common.transceiver_name)
-[ "$optic_version" != "$image_version" ] && optic_change=1
-[ "$optic_transceiver" != "$transceiver_name" ] && optic_change=1
-
-if [ "$optic_change" ]; then
-    # Delete previous mode and transceiver configs.
-    for opt in optic.common.mode optic.offsets optic.gpon optic.xgspon optic.xgpon optic.ngpon2_2G5 optic.ngpon2_10G ; do
-        uci -q delete $opt;
-    done
-    config_apply optic "$OPTIC_DB_LOCATION/default"
-    config_apply optic "$OPTIC_DB_LOCATION/default-$board_name"
-    config_apply optic $(optic_files_get "$board_name")
-    uci set optic.common.version="$image_version"
-    uci set optic.common.transceiver_name="$transceiver_name"
-    update_ponmode
-    uci commit optic
-fi
-
-# we don't have a serdes config for specific transceivers yet.
-# In case we will get this, the handling here needs to be extended like above.
-serdes_version=$(uci -q get serdes.generic.version)
-[ "$serdes_version" != "$image_version" ] && serdes_change=1
-
-if [ "$serdes_change" ]; then
-    config_apply serdes $(serdes_files_get "$board_name")
-    uci set serdes.generic.version="$image_version"
-    uci commit serdes
+# only execute when called directly
+if [ "$(basename $0)" = "pondb.sh" ]; then
+    check_optic_change
+    check_serdes_change
 fi

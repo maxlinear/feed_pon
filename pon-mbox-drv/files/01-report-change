@@ -1,0 +1,11 @@
+#!/bin/sh
+# shellcheck shell=dash
+
+case "$ACTION" in
+online)
+	printf "%s: %s inserted\n" "$SUBSYSTEM" "$DEVICENAME" > /dev/kmsg
+	;;
+offline)
+	printf "%s: %s removed\n" "$SUBSYSTEM" "$DEVICENAME" > /dev/kmsg
+	;;
+esac

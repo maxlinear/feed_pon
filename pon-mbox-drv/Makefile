@@ -10,14 +10,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pon-mbox-drv
-PKG_VERSION:=1.27.0
+PKG_VERSION:=1.27.2
 PKG_SOURCE_VERSION:=$(PKG_VERSION)
 PKG_SOURCE_PROTO:=git
 PKG_PROJECT:=maxlinear
 PKG_SOURCE_NAME:=pon_mbox_drv
 CONFIG_UGW_PKG_SOURCE_URL:=https://github.com
 PKG_SOURCE_URL:=$(CONFIG_UGW_PKG_SOURCE_URL)/$(PKG_PROJECT)/$(PKG_SOURCE_NAME).git
-PKG_MIRROR_HASH:=82585f38243b288daf33af9fabec975498776c6955239151287e2ce7fa210148
+PKG_MIRROR_HASH:=fd5af173e1b32e6b78f287199b238f02a0004f5d79a6a4a6a1242ec1bfbf5a9d
 PKG_BUILD_PARALLEL:=1
 PKG_LICENSE:=GPL-2.0-only or BSD-2-Clause
 PKG_LICENSE_FILES:=LICENSE
@@ -145,6 +145,11 @@ endef
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include/pon
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/include/pon/* $(1)/usr/include/pon/
+endef
+
+define KernelPackage/$(PKG_NAME)/install
+	$(INSTALL_DIR) $(1)/etc/hotplug.d/pon-sfp
+	$(INSTALL_BIN) ./files/01-report-change $(1)/etc/hotplug.d/pon-sfp/
 endef
 
 $(eval $(call KernelPackage,$(PKG_NAME)))

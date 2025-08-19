@@ -1,0 +1,39 @@
+From 42d3ac1851218ef0e0f3c8933fdead3cc3215a09 Mon Sep 17 00:00:00 2001
+From: Zahari Doychev <zdoychev@maxlinear.com>
+Date: Tue, 20 May 2025 11:25:56 +0200
+Subject: [PATCH] tc: Fix leaf node print format on 32-bit BE systems
+
+The print_0xhex function is used to dump 64-bit values in hex.
+However, on 32-bit big-endian platforms, this causes the leaf node
+to be printed incorrectly due to casting to 64-bit value.
+
+Problem example where the leaf node numbers are zero but should not.
+
+[...]
+
+class prio 8000:7 parent 8000: leaf 2:
+class prio 8000:8 parent 8000: leaf 2:
+class drr 7000:1 root leaf 0: quantum 16Kb  # ERROR leaf should not be zero
+class drr 7000:2 root leaf 0: quantum 16Kb
+
+[..]
+---
+ tc/tc_class.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tc/tc_class.c b/tc/tc_class.c
+index 096fa2ec..2f5edb07 100644
+--- a/tc/tc_class.c
++++ b/tc/tc_class.c
+@@ -356,7 +356,7 @@ int print_class(struct nlmsghdr *n, void *arg)
+ 		print_string(PRINT_ANY, "parent", "parent %s ", abuf);
+ 	}
+ 	if (t->tcm_info)
+-		print_0xhex(PRINT_ANY, "leaf", "leaf %x: ", t->tcm_info>>16);
++		print_hex(PRINT_ANY, "leaf", "leaf %x: ", t->tcm_info>>16);
+ 
+ 	q = get_qdisc_kind(RTA_DATA(tb[TCA_KIND]));
+ 	if (tb[TCA_OPTIONS]) {
+-- 
+2.43.0
+

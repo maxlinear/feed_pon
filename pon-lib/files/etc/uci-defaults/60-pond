@@ -18,11 +18,16 @@ set_aon_mode() {
 if [ -n "$board_name" ]; then
 	set_aon_mode
 fi
-
-ethaddr=$(awk 'BEGIN{RS=" ";FS="="} $1 == "ethaddr" {print $2}' /proc/cmdline)
-[ -z "$ethaddr" ] && ethaddr="ac:9a:96:00:00:00"
-
-nSerial=$(echo $ethaddr | awk 'BEGIN{FS=":"} {print "MAXL"$3$4$5$6}')
+# readmfg utility is used here to read the pon serial from mfgdata
+# partition (manufacturing data partition).
+# The utility is only available in URX UPDK builds.
+# In others cases a default value derived from ethaddr will be used.
+nSerial=$(readmfg -s PON_SERIAL 2>/dev/null)
+if [ -z "$nSerial" ]; then
+	ethaddr=$(awk 'BEGIN{RS=" ";FS="="} $1 == "ethaddr" {print $2}' /proc/cmdline)
+	[ -z "$ethaddr" ] && ethaddr="ac:9a:96:00:00:00"
+	nSerial=$(echo $ethaddr | awk 'BEGIN{FS=":"} {print "MAXL"$3$4$5$6}')
+fi
 # The regID must be 36 characters, so it is filled with whitespaces
 # (nSerial has always 12 characters)
 regID="MAXLINEAR ONU $nSerial          "

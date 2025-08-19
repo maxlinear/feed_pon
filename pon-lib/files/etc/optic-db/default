@@ -14,3 +14,4 @@ config 'optic' 'common'
 	option 'tx_power_scale' '0' # TX power scaling factor (0 = 0.1 uW/LSB, 1 = 0.2 uW/LSB)
 	option 'gpio24_mode' '0' # Selects the driver of OPT_TX_PUP (0 = hw, 1 = hw with fw override)
 	option 'rogue_auto_en' '2' # PMD-based rogue ONU detection is enabled
+	option 'sfp_tweaks' '0' # Bitmask of tweaks: Bit 0: skip Soft-TX-DISABLE toggle

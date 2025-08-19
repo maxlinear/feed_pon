@@ -13,20 +13,20 @@ pon_dt_name() {
 	# check directly the device tree
 	[ -e /proc/device-tree/model ] && machine=$(cat /proc/device-tree/model)
 
-	# use second word in lower case
-	name=$(echo $machine | awk 'BEGIN{FS=","} {print tolower($2);}')
+	# use second field (comma-separated) in lower case
+	name=$(echo "$machine" | awk 'BEGIN{FS=","} {print tolower($2);}')
 
 	case "$name" in
 		lgm*)
 			name="urx851-eva"
 			;;
-		lgp*|osp-tb341)
+		lgp*)
 			name="urx851-ref"
 			;;
 		octopus-640*)
 			name="lgmc-octopus"
 			;;
-		octopus*|osp-tb341-v2)
+		octopus*|osp-tb341*)
 			name="urx851-octopus"
 			;;
 		*)

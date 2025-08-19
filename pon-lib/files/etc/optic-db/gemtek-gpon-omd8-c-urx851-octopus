@@ -1,9 +1,0 @@
-# This file contains the transceiver gpon-omd8-c settings
-# Some technical identical transceiver but with a slightly different
-# model name read out over i2c are covered by a corresponding symbolic links
-
-package 'optic'
-
-config optic 'common'
-	option 'mode' 'gpon'
-	option 'sd_polarity' '1'

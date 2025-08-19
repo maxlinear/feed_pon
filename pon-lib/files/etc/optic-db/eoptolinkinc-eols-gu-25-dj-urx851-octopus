@@ -3,6 +3,7 @@ package 'optic'
 config optic 'common'
 	option 'mode' 'gpon'
 	option 'sd_polarity' '0'
+	option 'sfp_tweaks' '1'
 
 config optic 'offsets'
 	option 'bias_setup_time' '9645'
