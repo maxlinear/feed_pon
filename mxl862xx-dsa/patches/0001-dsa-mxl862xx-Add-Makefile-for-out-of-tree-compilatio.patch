@@ -1,0 +1,58 @@
+From 003c47936f8f8e7f267411c322c1c0c223053b7d Mon Sep 17 00:00:00 2001
+From: Zahari Doychev <zdoychev@maxlinear.com>
+Date: Mon, 4 Aug 2025 11:13:44 +0200
+Subject: [PATCH 1/4] dsa: mxl862xx: Add Makefile for out-of-tree compilation
+
+Add support for out-of-tree compilation of the mxl862xx DSA driver.
+This Makefile is required to enable building the driver as an
+OpenWrt package.
+---
+ Makefile | 36 ++++++++++++++++++++++++++++++++++++
+ 1 file changed, 36 insertions(+)
+ create mode 100644 Makefile
+
+diff --git a/Makefile b/Makefile
+new file mode 100644
+index 0000000..0a04540
+--- /dev/null
++++ b/Makefile
+@@ -0,0 +1,36 @@
++
++MXL862XX_DIR := linux/drivers/net/dsa/mxl862xx
++MXL862XX_API_DIR := $(MXL862XX_DIR)/host_api
++MXL862XX_DSA_DIR := linux/net/dsa
++KDIR ?= $(LINUX_DIR)
++
++ifneq ($(KERNELRELEASE),)
++# kbuild part of makefile
++
++$(warning, "KDIR=$(KDIR)")
++ccflags-y := -I $(KDIR)/net/dsa
++
++obj-m := mxl862xx_dsa.o
++mxl862xx_dsa-y := $(MXL862XX_DIR)/mxl862xx.o \
++		$(MXL862XX_API_DIR)/mxl862xx_api.o \
++		$(MXL862XX_API_DIR)/mxl862xx_host_api_impl.o \
++		$(MXL862XX_API_DIR)/mxl862xx_mdio_relay.o
++
++obj-m += tag_mxl862xx.o
++tag_mxl862xx-y := $(MXL862XX_DSA_DIR)/tag_mxl862xx.o
++obj-m += tag_mxl862xx_8021q.o
++tag_mxl862xx_8021q-y := $(MXL862XX_DSA_DIR)/tag_mxl862xx_8021q.o
++
++else
++# normal makefile
++KDIR ?= $(LINUX_DIR)
++
++modules:
++	$(MAKE) -C $(KDIR) M=$$PWD
++
++clean:
++	@rm -rf $(MXL862XX_DIR)/{*.o,*.ko,*.mod.c,.*.cmd,.*.order,.*.symvers,.tmp_versions}
++	@rm -rf $(MXL862XX_API_DIR)/{*.o,*.ko,*.mod.c,.*.cmd,.*.order,.*.symvers,.tmp_versions}
++	@rm -rf $(MXL862XX_DSA_DIR)/{*.o,*.ko,*.mod.c,.*.cmd,.*.order,.*.symvers,.tmp_versions}
++	@rm -rf *.o *.ko *.mod.c *.mod .*.cmd *.order *.symvers .tmp_versions
++endif
+-- 
+2.43.0
+

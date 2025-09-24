@@ -13,7 +13,7 @@ include $(INCLUDE_DIR)/version.mk
 PKG_NAME:=pon-base-files
 PKG_RELEASE:=1
 PKG_LICENSE:=GPL-2.0-only
-PON_VERSION_NUMBER:=2.1.3
+PON_VERSION_NUMBER:=2.1.4
 
 include $(INCLUDE_DIR)/package.mk
 

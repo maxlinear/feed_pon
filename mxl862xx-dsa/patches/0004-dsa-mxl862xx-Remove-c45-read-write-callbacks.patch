@@ -1,0 +1,29 @@
+From 0dfc60a4662007dfc82f7056d88411bfede715fc Mon Sep 17 00:00:00 2001
+From: Zahari Doychev <zdoychev@maxlinear.com>
+Date: Mon, 4 Aug 2025 11:39:12 +0200
+Subject: [PATCH 4/4] dsa: mxl862xx: Remove c45 read/write callbacks
+
+The struct mii_bus in the Linux 5.15 kernel does not include the
+read_c45 and write_c45 callback fields. Remove setting the callbacks
+to enable successful compilation with the Linux 5.15 kernel.
+---
+ linux/drivers/net/dsa/mxl862xx/mxl862xx.c | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/linux/drivers/net/dsa/mxl862xx/mxl862xx.c b/linux/drivers/net/dsa/mxl862xx/mxl862xx.c
+index 83b08e1..1841a04 100644
+--- a/linux/drivers/net/dsa/mxl862xx/mxl862xx.c
++++ b/linux/drivers/net/dsa/mxl862xx/mxl862xx.c
+@@ -1213,9 +1213,6 @@ mxl862xx_setup_mdio(struct dsa_switch *ds)
+ #if ((KERNEL_VERSION(6, 3, 0) <= LINUX_VERSION_CODE) && (!defined(C22_MDIO)))
+ 	bus->read_c45 = mxl862xx_phy_read_c45_mii_bus;
+ 	bus->write_c45 = mxl862xx_phy_write_c45_mii_bus;
+-#else
+-	bus->read_c45 = NULL;
+-	bus->write_c45 = NULL;
+ #endif
+ 	bus->read = mxl862xx_phy_read_mii_bus;
+ 	bus->write = mxl862xx_phy_write_mii_bus;
+-- 
+2.43.0
+

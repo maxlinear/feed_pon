@@ -1,0 +1,8 @@
+#!/bin/sh
+# shellcheck shell=dash
+
+if [ -f /etc/config/omci ]; then
+	uci set omci.pon_adapter=omci
+	# Only add libpatemplate to the list of pon_adapter modules if it is not already present
+	uci show omci.pon_adapter.modules | grep -qw libpatemplate || uci add_list omci.pon_adapter.modules=libpatemplate
+fi

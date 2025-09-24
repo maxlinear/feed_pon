@@ -1,0 +1,730 @@
+From c47e30337a772fa6a5dae483e57127b4132f2f19 Mon Sep 17 00:00:00 2001
+From: Zahari Doychev <zdoychev@maxlinear.com>
+Date: Thu, 10 Apr 2025 17:20:46 +0200
+Subject: [PATCH 2/4] dsa: mxl862xx: Fix compile warning in memset usage
+
+Fix the following compile warnings:
+
+error: passing argument 1 of 'memset' from incompatible scalar storage order
+---
+ .../net/dsa/mxl862xx/host_api/mxl862xx_api.c  | 72 ++++++++--------
+ .../mxl862xx/host_api/mxl862xx_mdio_relay.c   | 12 +--
+ linux/drivers/net/dsa/mxl862xx/mxl862xx.c     | 86 +++++++++----------
+ 3 files changed, 85 insertions(+), 85 deletions(-)
+
+diff --git a/linux/drivers/net/dsa/mxl862xx/host_api/mxl862xx_api.c b/linux/drivers/net/dsa/mxl862xx/host_api/mxl862xx_api.c
+index 92a74df..f8079fa 100644
+--- a/linux/drivers/net/dsa/mxl862xx/host_api/mxl862xx_api.c
++++ b/linux/drivers/net/dsa/mxl862xx/host_api/mxl862xx_api.c
+@@ -33,79 +33,79 @@ int sys_misc_fw_version(const mxl862xx_device_t *dev,
+ 
+ int mxl862xx_register_mod(const mxl862xx_device_t *dev, mxl862xx_register_mod_t *parm)
+ {
+-	return mxl862xx_api_wrap(dev, MXL862XX_COMMON_REGISTERMOD, parm, sizeof(*parm), 0,
++	return mxl862xx_api_wrap(dev, MXL862XX_COMMON_REGISTERMOD, (void *)parm, sizeof(*parm), 0,
+ 			    0);
+ }
+ 
+ int mxl862xx_port_link_cfg_set(const mxl862xx_device_t *dev, mxl862xx_port_link_cfg_t *parm)
+ {
+-	return mxl862xx_api_wrap(dev, MXL862XX_COMMON_PORTLINKCFGSET, parm, sizeof(*parm),
++	return mxl862xx_api_wrap(dev, MXL862XX_COMMON_PORTLINKCFGSET, (void *)parm, sizeof(*parm),
+ 			    MXL862XX_COMMON_PORTLINKCFGGET, 0);
+ }
+ 
+ int mxl862xx_port_cfg_get(const mxl862xx_device_t *dev, mxl862xx_port_cfg_t *parm)
+ {
+-	return mxl862xx_api_wrap(dev, MXL862XX_COMMON_PORTCFGGET, parm, sizeof(*parm), 0,
++	return mxl862xx_api_wrap(dev, MXL862XX_COMMON_PORTCFGGET, (void *)parm, sizeof(*parm), 0,
+ 			    sizeof(*parm));
+ }
+ 
+ int mxl862xx_port_cfg_set(const mxl862xx_device_t *dev, mxl862xx_port_cfg_t *parm)
+ {
+-	return mxl862xx_api_wrap(dev, MXL862XX_COMMON_PORTCFGSET, parm, sizeof(*parm),
++	return mxl862xx_api_wrap(dev, MXL862XX_COMMON_PORTCFGSET, (void *)parm, sizeof(*parm),
+ 			    MXL862XX_COMMON_PORTCFGGET, 0);
+ }
+ 
+ int mxl862xx_bridge_alloc(const mxl862xx_device_t *dev, mxl862xx_bridge_alloc_t *parm)
+ {
+-	return mxl862xx_api_wrap(dev, MXL862XX_BRIDGE_ALLOC, parm, sizeof(*parm), 0,
++	return mxl862xx_api_wrap(dev, MXL862XX_BRIDGE_ALLOC, (void *)parm, sizeof(*parm), 0,
+ 			    sizeof(*parm));
+ }
+ int mxl862xx_bridge_free(const mxl862xx_device_t *dev, mxl862xx_bridge_alloc_t *parm)
+ {
+-	return mxl862xx_api_wrap(dev, MXL862XX_BRIDGE_FREE, parm, sizeof(*parm), 0, 0);
++	return mxl862xx_api_wrap(dev, MXL862XX_BRIDGE_FREE, (void *)parm, sizeof(*parm), 0, 0);
+ }
+ 
+ int mxl862xx_bridge_config_set(const mxl862xx_device_t *dev, mxl862xx_bridge_config_t *parm)
+ {
+-	return mxl862xx_api_wrap(dev, MXL862XX_BRIDGE_CONFIGSET, parm, sizeof(*parm),
++	return mxl862xx_api_wrap(dev, MXL862XX_BRIDGE_CONFIGSET, (void *)parm, sizeof(*parm),
+ 			    MXL862XX_BRIDGE_CONFIGGET, 0);
+ }
+ 
+ int mxl862xx_bridge_config_get(const mxl862xx_device_t *dev, mxl862xx_bridge_config_t *parm)
+ {
+-	return mxl862xx_api_wrap(dev, MXL862XX_BRIDGE_CONFIGGET, parm, sizeof(*parm), 0,
++	return mxl862xx_api_wrap(dev, MXL862XX_BRIDGE_CONFIGGET, (void *)parm, sizeof(*parm), 0,
+ 			    sizeof(*parm));
+ }
+ 
+ int mxl862xx_bridge_port_alloc(const mxl862xx_device_t *dev, mxl862xx_bridge_port_alloc_t *parm)
+ {
+-	return mxl862xx_api_wrap(dev, MXL862XX_BRIDGEPORT_ALLOC, parm, sizeof(*parm), 0,
++	return mxl862xx_api_wrap(dev, MXL862XX_BRIDGEPORT_ALLOC, (void *)parm, sizeof(*parm), 0,
+ 			    sizeof(*parm));
+ }
+ 
+ int mxl862xx_bridge_port_free(const mxl862xx_device_t *dev, mxl862xx_bridge_port_alloc_t *parm)
+ {
+-	return mxl862xx_api_wrap(dev, MXL862XX_BRIDGEPORT_FREE, parm, sizeof(*parm), 0, 0);
++	return mxl862xx_api_wrap(dev, MXL862XX_BRIDGEPORT_FREE, (void *)parm, sizeof(*parm), 0, 0);
+ }
+ 
+ int mxl862xx_bridge_port_config_set(const mxl862xx_device_t *dev,
+ 				    mxl862xx_bridge_port_config_t *parm)
+ {
+-	return mxl862xx_api_wrap(dev, MXL862XX_BRIDGEPORT_CONFIGSET, parm, sizeof(*parm),
++	return mxl862xx_api_wrap(dev, MXL862XX_BRIDGEPORT_CONFIGSET, (void *)parm, sizeof(*parm),
+ 			    MXL862XX_BRIDGEPORT_CONFIGGET, 0);
+ }
+ 
+ int mxl862xx_bridge_port_config_get(const mxl862xx_device_t *dev,
+ 				    mxl862xx_bridge_port_config_t *parm)
+ {
+-	return mxl862xx_api_wrap(dev, MXL862XX_BRIDGEPORT_CONFIGGET, parm, sizeof(*parm),
++	return mxl862xx_api_wrap(dev, MXL862XX_BRIDGEPORT_CONFIGGET, (void *)parm, sizeof(*parm),
+ 			    0, sizeof(*parm));
+ }
+ 
+ int mxl862xx_debug_rmon_port_get(const mxl862xx_device_t *dev,
+ 				 mxl862xx_debug_rmon_port_cnt_t *parm)
+ {
+-	return mxl862xx_api_wrap(dev, MXL862XX_DEBUG_RMON_PORT_GET, parm, sizeof(*parm),
++	return mxl862xx_api_wrap(dev, MXL862XX_DEBUG_RMON_PORT_GET, (void *)parm, sizeof(*parm),
+ 			    0, sizeof(*parm));
+ }
+ 
+@@ -117,156 +117,156 @@ int mxl862xx_mac_table_clear(const mxl862xx_device_t *dev)
+ int mxl862xx_mac_table_clear_cond(const mxl862xx_device_t *dev,
+ 				  mxl862xx_mac_table_clear_cond_t *parm)
+ {
+-	return mxl862xx_api_wrap(dev, MXL862XX_MAC_TABLECLEARCOND, parm, sizeof(*parm), 0,
++	return mxl862xx_api_wrap(dev, MXL862XX_MAC_TABLECLEARCOND, (void *)parm, sizeof(*parm), 0,
+ 			    0);
+ }
+ 
+ int mxl862xx_mac_table_entry_read(const mxl862xx_device_t *dev,
+ 				  mxl862xx_mac_table_read_t *parm)
+ {
+-	return mxl862xx_api_wrap(dev, MXL862XX_MAC_TABLEENTRYREAD, parm, sizeof(*parm), 0,
++	return mxl862xx_api_wrap(dev, MXL862XX_MAC_TABLEENTRYREAD, (void *)parm, sizeof(*parm), 0,
+ 			    sizeof(*parm));
+ }
+ 
+ int mxl862xx_mac_table_entry_add(const mxl862xx_device_t *dev,
+ 				 mxl862xx_mac_table_add_t *parm)
+ {
+-	return mxl862xx_api_wrap(dev, MXL862XX_MAC_TABLEENTRYADD, parm, sizeof(*parm), 0,
++	return mxl862xx_api_wrap(dev, MXL862XX_MAC_TABLEENTRYADD, (void *)parm, sizeof(*parm), 0,
+ 			    0);
+ }
+ 
+ int mxl862xx_mac_table_entry_remove(const mxl862xx_device_t *dev,
+ 				    mxl862xx_mac_table_remove_t *parm)
+ {
+-	return mxl862xx_api_wrap(dev, MXL862XX_MAC_TABLEENTRYREMOVE, parm, sizeof(*parm),
++	return mxl862xx_api_wrap(dev, MXL862XX_MAC_TABLEENTRYREMOVE, (void *)parm, sizeof(*parm),
+ 			    0, 0);
+ }
+ 
+ int mxl862xx_stp_port_cfg_set(const mxl862xx_device_t *dev, mxl862xx_stp_port_cfg_t *parm)
+ {
+-	return mxl862xx_api_wrap(dev, MXL862XX_STP_PORTCFGSET, parm, sizeof(*parm),
++	return mxl862xx_api_wrap(dev, MXL862XX_STP_PORTCFGSET, (void *)parm, sizeof(*parm),
+ 			    MXL862XX_STP_PORTCFGGET, 0);
+ }
+ 
+ int mxl862xx_ss_sp_tag_get(const mxl862xx_device_t *dev, mxl862xx_ss_sp_tag_t *parm)
+ {
+-	return mxl862xx_api_wrap(dev, MXL862XX_SS_SPTAG_GET, parm, sizeof(*parm), 0,
++	return mxl862xx_api_wrap(dev, MXL862XX_SS_SPTAG_GET, (void *)parm, sizeof(*parm), 0,
+ 			    sizeof(*parm));
+ }
+ 
+ int mxl862xx_ss_sp_tag_set(const mxl862xx_device_t *dev, mxl862xx_ss_sp_tag_t *parm)
+ {
+-	return mxl862xx_api_wrap(dev, MXL862XX_SS_SPTAG_SET, parm, sizeof(*parm),
++	return mxl862xx_api_wrap(dev, MXL862XX_SS_SPTAG_SET, (void *)parm, sizeof(*parm),
+ 			    MXL862XX_SS_SPTAG_GET, sizeof(*parm));
+ }
+ 
+ int mxl862xx_ctp_port_config_get(const mxl862xx_device_t *dev,
+ 				 mxl862xx_ctp_port_config_t *parm)
+ {
+-	return mxl862xx_api_wrap(dev, MXL862XX_CTP_PORTCONFIGGET, parm, sizeof(*parm), 0,
++	return mxl862xx_api_wrap(dev, MXL862XX_CTP_PORTCONFIGGET, (void *)parm, sizeof(*parm), 0,
+ 			    sizeof(*parm));
+ }
+ 
+ int mxl862xx_ctp_port_config_set(const mxl862xx_device_t *dev,
+ 				 mxl862xx_ctp_port_config_t *parm)
+ {
+-	return mxl862xx_api_wrap(dev, MXL862XX_CTP_PORTCONFIGSET, parm, sizeof(*parm),
++	return mxl862xx_api_wrap(dev, MXL862XX_CTP_PORTCONFIGSET, (void *)parm, sizeof(*parm),
+ 			    MXL862XX_CTP_PORTCONFIGGET, 0);
+ }
+ 
+ int mxl862xx_ctp_port_assignment_set(const mxl862xx_device_t *dev,
+ 				     mxl862xx_ctp_port_assignment_t *parm)
+ {
+-	return mxl862xx_api_wrap(dev, MXL862XX_CTP_PORTASSIGNMENTSET, parm, sizeof(*parm),
++	return mxl862xx_api_wrap(dev, MXL862XX_CTP_PORTASSIGNMENTSET, (void *)parm, sizeof(*parm),
+ 			    MXL862XX_CTP_PORTASSIGNMENTGET, 0);
+ }
+ 
+ int mxl862xx_ctp_port_assignment_get(const mxl862xx_device_t *dev,
+ 				     mxl862xx_ctp_port_assignment_t *parm)
+ {
+-	return mxl862xx_api_wrap(dev, MXL862XX_CTP_PORTASSIGNMENTGET, parm, sizeof(*parm),
++	return mxl862xx_api_wrap(dev, MXL862XX_CTP_PORTASSIGNMENTGET, (void *)parm, sizeof(*parm),
+ 			    0, sizeof(*parm));
+ }
+ 
+ int mxl862xx_monitor_port_cfg_get(const mxl862xx_device_t *dev,
+ 				  mxl862xx_monitor_port_cfg_t *parm)
+ {
+-	return mxl862xx_api_wrap(dev, MXL862XX_COMMON_MONITORPORTCFGGET, parm,
++	return mxl862xx_api_wrap(dev, MXL862XX_COMMON_MONITORPORTCFGGET, (void *)parm,
+ 			    sizeof(*parm), 0, sizeof(*parm));
+ }
+ 
+ int mxl862xx_monitor_port_cfg_set(const mxl862xx_device_t *dev,
+ 				  mxl862xx_monitor_port_cfg_t *parm)
+ {
+-	return mxl862xx_api_wrap(dev, MXL862XX_COMMON_MONITORPORTCFGSET, parm,
++	return mxl862xx_api_wrap(dev, MXL862XX_COMMON_MONITORPORTCFGSET, (void *)parm,
+ 			    sizeof(*parm), MXL862XX_COMMON_MONITORPORTCFGGET, 0);
+ }
+ 
+ int mxl862xx_extended_vlan_alloc(const mxl862xx_device_t *dev,
+ 				 mxl862xx_extendedvlan_alloc_t *parm)
+ {
+-	return mxl862xx_api_wrap(dev, MXL862XX_EXTENDEDVLAN_ALLOC, parm, sizeof(*parm), 0,
++	return mxl862xx_api_wrap(dev, MXL862XX_EXTENDEDVLAN_ALLOC, (void *)parm, sizeof(*parm), 0,
+ 			    sizeof(*parm));
+ }
+ 
+ int mxl862xx_extended_vlan_set(const mxl862xx_device_t *dev,
+ 			       mxl862xx_extendedvlan_config_t *parm)
+ {
+-	return mxl862xx_api_wrap(dev, MXL862XX_EXTENDEDVLAN_SET, parm, sizeof(*parm),
++	return mxl862xx_api_wrap(dev, MXL862XX_EXTENDEDVLAN_SET, (void *)parm, sizeof(*parm),
+ 			    MXL862XX_EXTENDEDVLAN_GET, 0);
+ }
+ 
+ int mxl862xx_extended_vlan_get(const mxl862xx_device_t *dev,
+ 			       mxl862xx_extendedvlan_config_t *parm)
+ {
+-	return mxl862xx_api_wrap(dev, MXL862XX_EXTENDEDVLAN_GET, parm, sizeof(*parm), 0,
++	return mxl862xx_api_wrap(dev, MXL862XX_EXTENDEDVLAN_GET, (void *)parm, sizeof(*parm), 0,
+ 			    sizeof(*parm));
+ }
+ 
+ int mxl862xx_extended_vlan_free(const mxl862xx_device_t *dev,
+ 				mxl862xx_extendedvlan_alloc_t *parm)
+ {
+-	return mxl862xx_api_wrap(dev, MXL862XX_EXTENDEDVLAN_FREE, parm, sizeof(*parm), 0,
++	return mxl862xx_api_wrap(dev, MXL862XX_EXTENDEDVLAN_FREE, (void *)parm, sizeof(*parm), 0,
+ 			    0);
+ }
+ 
+ int mxl862xx_vlan_filter_alloc(const mxl862xx_device_t *dev,
+ 			       mxl862xx_vlanfilter_alloc_t *parm)
+ {
+-	return mxl862xx_api_wrap(dev, MXL862XX_VLANFILTER_ALLOC, parm, sizeof(*parm), 0,
++	return mxl862xx_api_wrap(dev, MXL862XX_VLANFILTER_ALLOC, (void *)parm, sizeof(*parm), 0,
+ 			    sizeof(*parm));
+ }
+ 
+ int mxl862xx_vlan_filter_set(const mxl862xx_device_t *dev,
+ 			     mxl862xx_vlanfilter_config_t *parm)
+ {
+-	return mxl862xx_api_wrap(dev, MXL862XX_VLANFILTER_SET, parm, sizeof(*parm),
++	return mxl862xx_api_wrap(dev, MXL862XX_VLANFILTER_SET, (void *)parm, sizeof(*parm),
+ 			    MXL862XX_VLANFILTER_GET, 0);
+ }
+ 
+ int mxl862xx_vlan_filter_get(const mxl862xx_device_t *dev,
+ 			     mxl862xx_vlanfilter_config_t *parm)
+ {
+-	return mxl862xx_api_wrap(dev, MXL862XX_VLANFILTER_GET, parm, sizeof(*parm), 0,
++	return mxl862xx_api_wrap(dev, MXL862XX_VLANFILTER_GET, (void *)parm, sizeof(*parm), 0,
+ 			    sizeof(*parm));
+ }
+ 
+ int mxl862xx_vlan_filter_free(const mxl862xx_device_t *dev,
+ 			      mxl862xx_vlanfilter_alloc_t *parm)
+ {
+-	return mxl862xx_api_wrap(dev, MXL862XX_VLANFILTER_FREE, parm, sizeof(*parm), 0,
++	return mxl862xx_api_wrap(dev, MXL862XX_VLANFILTER_FREE, (void *)parm, sizeof(*parm), 0,
+ 			    0);
+ }
+ 
+ int mxl862xx_cfg_get(const mxl862xx_device_t *dev, mxl862xx_cfg_t *parm)
+ {
+-	return mxl862xx_api_wrap(dev, MXL862XX_COMMON_CFGGET, parm, sizeof(*parm), 0,
++	return mxl862xx_api_wrap(dev, MXL862XX_COMMON_CFGGET, (void *)parm, sizeof(*parm), 0,
+ 			    sizeof(*parm));
+ }
+ 
+ int mxl862xx_cfg_set(const mxl862xx_device_t *dev, mxl862xx_cfg_t *parm)
+ {
+-	return mxl862xx_api_wrap(dev, MXL862XX_COMMON_CFGSET, parm, sizeof(*parm),
++	return mxl862xx_api_wrap(dev, MXL862XX_COMMON_CFGSET, (void *)parm, sizeof(*parm),
+ 				MXL862XX_COMMON_CFGGET, 0);
+ }
+ 
+diff --git a/linux/drivers/net/dsa/mxl862xx/host_api/mxl862xx_mdio_relay.c b/linux/drivers/net/dsa/mxl862xx/host_api/mxl862xx_mdio_relay.c
+index 03702d8..7506126 100644
+--- a/linux/drivers/net/dsa/mxl862xx/host_api/mxl862xx_mdio_relay.c
++++ b/linux/drivers/net/dsa/mxl862xx/host_api/mxl862xx_mdio_relay.c
+@@ -26,34 +26,34 @@
+ 
+ int int_gphy_read(const mxl862xx_device_t *dev, struct mdio_relay_data *parm)
+ {
+-	return mxl862xx_api_wrap(dev, INT_GPHY_READ, parm, sizeof(*parm), 0,
++	return mxl862xx_api_wrap(dev, INT_GPHY_READ, (void *)parm, sizeof(*parm), 0,
+ 			    sizeof(parm->data));
+ }
+ 
+ int int_gphy_write(const mxl862xx_device_t *dev, struct mdio_relay_data *parm)
+ {
+-	return mxl862xx_api_wrap(dev, INT_GPHY_WRITE, parm, sizeof(*parm), 0, 0);
++	return mxl862xx_api_wrap(dev, INT_GPHY_WRITE, (void *)parm, sizeof(*parm), 0, 0);
+ }
+ 
+ int int_gphy_mod(const mxl862xx_device_t *dev, struct mdio_relay_mod_data *parm)
+ {
+-	return mxl862xx_api_wrap(dev, INT_GPHY_MOD, parm, sizeof(*parm), 0, 0);
++	return mxl862xx_api_wrap(dev, INT_GPHY_MOD, (void *)parm, sizeof(*parm), 0, 0);
+ }
+ 
+ int ext_mdio_read(const mxl862xx_device_t *dev, struct mdio_relay_data *parm)
+ {
+-	return mxl862xx_api_wrap(dev, EXT_MDIO_READ, parm, sizeof(*parm), 0,
++	return mxl862xx_api_wrap(dev, EXT_MDIO_READ, (void *)parm, sizeof(*parm), 0,
+ 			    sizeof(parm->data));
+ }
+ 
+ int ext_mdio_write(const mxl862xx_device_t *dev, struct mdio_relay_data *parm)
+ {
+-	return mxl862xx_api_wrap(dev, EXT_MDIO_WRITE, parm, sizeof(*parm), 0, 0);
++	return mxl862xx_api_wrap(dev, EXT_MDIO_WRITE, (void *)parm, sizeof(*parm), 0, 0);
+ }
+ 
+ int ext_mdio_mod(const mxl862xx_device_t *dev, struct mdio_relay_mod_data *parm)
+ {
+-	return mxl862xx_api_wrap(dev, EXT_MDIO_MOD, parm, sizeof(*parm), 0, 0);
++	return mxl862xx_api_wrap(dev, EXT_MDIO_MOD, (void *)parm, sizeof(*parm), 0, 0);
+ }
+ 
+ EXPORT_SYMBOL(int_gphy_write);
+diff --git a/linux/drivers/net/dsa/mxl862xx/mxl862xx.c b/linux/drivers/net/dsa/mxl862xx/mxl862xx.c
+index 5c3d9ac..808e99a 100644
+--- a/linux/drivers/net/dsa/mxl862xx/mxl862xx.c
++++ b/linux/drivers/net/dsa/mxl862xx/mxl862xx.c
+@@ -2028,7 +2028,7 @@ __prepare_vlan_egress_filters_off_sp_tag_no_vid(struct dsa_switch *ds, uint8_t p
+ 
+ 	// Static entry :  Outer and iner tag.
+ 	// Remove outer tag  one as it must be sp_tag. Transparent for inner tag.
+-	memset(&vlan_cfg, 0, sizeof(vlan_cfg));
++	memset((void *)&vlan_cfg, 0, sizeof(vlan_cfg));
+ 	vlan_cfg.extended_vlan_block_id =
+ 		priv->port_info[port].vlan.egress_vlan_block_info.block_id;
+ 	vlan_cfg.entry_index = priv->port_info[port].vlan.egress_vlan_block_info.filters_max - 2;
+@@ -2051,7 +2051,7 @@ __prepare_vlan_egress_filters_off_sp_tag_no_vid(struct dsa_switch *ds, uint8_t p
+ 	__print_vlan_filter(priv, __func__, port, &vlan_cfg);
+ 
+ 	// Last entry :  Only outer tag. Remove it as it must be sp_tag
+-	memset(&vlan_cfg, 0, sizeof(vlan_cfg));
++	memset((void *)&vlan_cfg, 0, sizeof(vlan_cfg));
+ 	vlan_cfg.extended_vlan_block_id =
+ 		priv->port_info[port].vlan.egress_vlan_block_info.block_id;
+ 	vlan_cfg.entry_index = priv->port_info[port].vlan.egress_vlan_block_info.filters_max - 1;
+@@ -2115,7 +2115,7 @@ __prepare_vlan_egress_filters_off_sp_tag(struct dsa_switch *ds, uint8_t port, ui
+ 		goto EXIT;
+ 
+ 	// Entry 0 :  Outer and Inner tags are present. Inner tag matching vid.
+-	memset(&vlan_cfg, 0, sizeof(vlan_cfg));
++	memset((void *)&vlan_cfg, 0, sizeof(vlan_cfg));
+ 	vlan_cfg.extended_vlan_block_id =
+ 		priv->port_info[port].vlan.egress_vlan_block_info.block_id;
+ 	/* if found recycled entry reuse it, otherwise create new one */
+@@ -2158,7 +2158,7 @@ __prepare_vlan_egress_filters_off_sp_tag(struct dsa_switch *ds, uint8_t port, ui
+ 		.filters_idx[1] = IDX_INVAL;
+ 
+ 	// Static entry :  Outer and iner tag, not matching vid. Remove outer tag  one as it must be sp_tag
+-	memset(&vlan_cfg, 0, sizeof(vlan_cfg));
++	memset((void *)&vlan_cfg, 0, sizeof(vlan_cfg));
+ 	vlan_cfg.extended_vlan_block_id =
+ 		priv->port_info[port].vlan.egress_vlan_block_info.block_id;
+ 	vlan_cfg.entry_index = priv->port_info[port].vlan.egress_vlan_block_info.filters_max - 2;
+@@ -2181,7 +2181,7 @@ __prepare_vlan_egress_filters_off_sp_tag(struct dsa_switch *ds, uint8_t port, ui
+ 	__print_vlan_filter(priv, __func__, port, &vlan_cfg);
+ 
+ 	// Last entry :  Only outer tag. Remove it as it must be sp_tag
+-	memset(&vlan_cfg, 0, sizeof(vlan_cfg));
++	memset((void *)&vlan_cfg, 0, sizeof(vlan_cfg));
+ 	vlan_cfg.extended_vlan_block_id =
+ 		priv->port_info[port].vlan.egress_vlan_block_info.block_id;
+ 	vlan_cfg.entry_index = priv->port_info[port].vlan.egress_vlan_block_info.filters_max - 1;
+@@ -2247,7 +2247,7 @@ __prepare_vlan_egress_filters_off(struct mxl862xx_priv *priv, uint8_t port, uint
+ 		goto EXIT;
+ 
+ 	// Entry 0 : ACCEPT VLAN tags that are matching  VID. Outer and Inner tags are present
+-	memset(&vlan_cfg, 0, sizeof(vlan_cfg));
++	memset((void *)&vlan_cfg, 0, sizeof(vlan_cfg));
+ 	vlan_cfg.extended_vlan_block_id =
+ 		priv->port_info[port].vlan.egress_vlan_block_info.block_id;
+ 	/* if found recycled entry reuse it, otherwise create new one */
+@@ -2279,7 +2279,7 @@ __prepare_vlan_egress_filters_off(struct mxl862xx_priv *priv, uint8_t port, uint
+ 		.filters_idx[0] = vlan_cfg.entry_index;
+ 
+ 	//	 Entry 1 : ACCEPT VLAN tags that are matching PVID or port VID. Only the outer tags are present
+-	memset(&vlan_cfg, 0, sizeof(vlan_cfg));
++	memset((void *)&vlan_cfg, 0, sizeof(vlan_cfg));
+ 	vlan_cfg.extended_vlan_block_id =
+ 		priv->port_info[port].vlan.egress_vlan_block_info.block_id;
+ 	/* if found recycled entry reuse it, otherwise create new one */
+@@ -2342,7 +2342,7 @@ __prepare_vlan_ingress_filters_off_sp_tag_no_vid(struct dsa_switch *ds, uint8_t
+ 		block_info->block_id = vlan_alloc.extended_vlan_block_id;
+ 	}
+ 
+-	memset(&vlan_cfg, 0, sizeof(vlan_cfg));
++	memset((void *)&vlan_cfg, 0, sizeof(vlan_cfg));
+ 	vlan_cfg.extended_vlan_block_id = block_info->block_id;
+ 
+ 	//Static rules. No tags, add SP tag
+@@ -2375,7 +2375,7 @@ __prepare_vlan_ingress_filters_off_sp_tag_no_vid(struct dsa_switch *ds, uint8_t
+ 
+ 	// Static rules
+ 	// Single tag. Use transparent mode. Add sp tag
+-	memset(&vlan_cfg, 0, sizeof(vlan_cfg));
++	memset((void *)&vlan_cfg, 0, sizeof(vlan_cfg));
+ 	vlan_cfg.extended_vlan_block_id = block_info->block_id;
+ 	vlan_cfg.entry_index = block_info->filters_max - 2;
+ 	vlan_cfg.filter.outer_vlan.type = MXL862XX_EXTENDEDVLAN_FILTER_TYPE_NO_FILTER;
+@@ -2405,7 +2405,7 @@ __prepare_vlan_ingress_filters_off_sp_tag_no_vid(struct dsa_switch *ds, uint8_t
+ 	block_info->final_filters_idx = vlan_cfg.entry_index;
+ 
+ 	// Two tags. Use transparent mode. Do not apply vid as this is tagged pkt
+-	memset(&vlan_cfg, 0, sizeof(vlan_cfg));
++	memset((void *)&vlan_cfg, 0, sizeof(vlan_cfg));
+ 	vlan_cfg.extended_vlan_block_id = block_info->block_id;
+ 	vlan_cfg.entry_index = block_info->filters_max - 1;
+ 	vlan_cfg.filter.outer_vlan.type = MXL862XX_EXTENDEDVLAN_FILTER_TYPE_NO_FILTER;
+@@ -2465,7 +2465,7 @@ __prepare_vlan_ingress_filters_off_sp_tag(struct dsa_switch *ds, uint8_t port, u
+ 	/*  If port has pvid then add vid dependand dynamic rule.
+ 	 *  It's done that way because it's required for proper handling of
+ 	 *  vlan delete scenario. If no pvid configured, create 'static' rule */
+-	memset(&vlan_cfg, 0, sizeof(vlan_cfg));
++	memset((void *)&vlan_cfg, 0, sizeof(vlan_cfg));
+ 	vlan_cfg.extended_vlan_block_id = block_info->block_id;
+ 
+ 	// vid dynamic rule
+@@ -2555,7 +2555,7 @@ __prepare_vlan_ingress_filters_off_sp_tag(struct dsa_switch *ds, uint8_t port, u
+ 
+ 	// Static rules
+ 	// Single tag. Use transparent mode. Do not apply PVID as this is the tagged traffic
+-	memset(&vlan_cfg, 0, sizeof(vlan_cfg));
++	memset((void *)&vlan_cfg, 0, sizeof(vlan_cfg));
+ 	vlan_cfg.extended_vlan_block_id = block_info->block_id;
+ 	vlan_cfg.entry_index = block_info->filters_max - 2;
+ 	vlan_cfg.filter.outer_vlan.type = MXL862XX_EXTENDEDVLAN_FILTER_TYPE_NO_FILTER;
+@@ -2585,7 +2585,7 @@ __prepare_vlan_ingress_filters_off_sp_tag(struct dsa_switch *ds, uint8_t port, u
+ 	block_info->final_filters_idx = vlan_cfg.entry_index;
+ 
+ 	// Two tags. Use transparent mode. Do not apply vid as this is tagged pkt
+-	memset(&vlan_cfg, 0, sizeof(vlan_cfg));
++	memset((void *)&vlan_cfg, 0, sizeof(vlan_cfg));
+ 	vlan_cfg.extended_vlan_block_id = block_info->block_id;
+ 	vlan_cfg.entry_index = block_info->filters_max - 1;
+ 	vlan_cfg.filter.outer_vlan.type = MXL862XX_EXTENDEDVLAN_FILTER_TYPE_NO_FILTER;
+@@ -2643,7 +2643,7 @@ __prepare_vlan_ingress_filters_off(struct mxl862xx_priv *priv, uint8_t port, uin
+ 	}
+ 
+ 	// Entry 4  untagged pkts. If there's PVID accept and add PVID tag
+-	memset(&vlan_cfg, 0, sizeof(vlan_cfg));
++	memset((void *)&vlan_cfg, 0, sizeof(vlan_cfg));
+ 	vlan_cfg.extended_vlan_block_id =
+ 		priv->port_info[port].vlan.ingress_vlan_block_info.block_id;
+ 	/* for cpu port this entry is fixed and always put at the end of the block */
+@@ -2779,7 +2779,7 @@ __prepare_vlan_egress_filters(struct dsa_switch *ds, uint8_t port, uint16_t vid,
+ 	 * stored in reversed order starting from the end of the block */
+ 
+ 	//Entry 4: no outer/inner tag, no PVID  DISCARD
+-	memset(&vlan_cfg, 0, sizeof(vlan_cfg));
++	memset((void *)&vlan_cfg, 0, sizeof(vlan_cfg));
+ 	vlan_cfg.extended_vlan_block_id = block_info->block_id;
+ 	vlan_cfg.entry_index = block_info->final_filters_idx--;
+ 	vlan_cfg.filter.inner_vlan.type = MXL862XX_EXTENDEDVLAN_FILTER_TYPE_NO_TAG;
+@@ -2794,7 +2794,7 @@ __prepare_vlan_egress_filters(struct dsa_switch *ds, uint8_t port, uint16_t vid,
+ 	__print_vlan_filter(priv, __func__, port, &vlan_cfg);
+ 
+ 	//Entry 3: Only Outer tag present. Discard if VID is not matching the previous rules
+-	memset(&vlan_cfg, 0, sizeof(vlan_cfg));
++	memset((void *)&vlan_cfg, 0, sizeof(vlan_cfg));
+ 	vlan_cfg.extended_vlan_block_id = block_info->block_id;
+ 	vlan_cfg.entry_index = block_info->final_filters_idx--;
+ 	vlan_cfg.filter.outer_vlan.type = MXL862XX_EXTENDEDVLAN_FILTER_TYPE_NORMAL;
+@@ -2809,7 +2809,7 @@ __prepare_vlan_egress_filters(struct dsa_switch *ds, uint8_t port, uint16_t vid,
+ 	__print_vlan_filter(priv, __func__, port, &vlan_cfg);
+ 
+ 	//Entry 2: Outer and Inner tags are present. Discard if VID is not matching the previous rules
+-	memset(&vlan_cfg, 0, sizeof(vlan_cfg));
++	memset((void *)&vlan_cfg, 0, sizeof(vlan_cfg));
+ 	vlan_cfg.extended_vlan_block_id = block_info->block_id;
+ 	vlan_cfg.entry_index = block_info->final_filters_idx--;
+ 	vlan_cfg.filter.outer_vlan.type = MXL862XX_EXTENDEDVLAN_FILTER_TYPE_NORMAL;
+@@ -2830,7 +2830,7 @@ __prepare_vlan_egress_filters(struct dsa_switch *ds, uint8_t port, uint16_t vid,
+ 		goto EXIT;
+ 
+ 	// Entry 0 : ACCEPT VLAN tags that are matching  VID. Outer and Inner tags are present
+-	memset(&vlan_cfg, 0, sizeof(vlan_cfg));
++	memset((void *)&vlan_cfg, 0, sizeof(vlan_cfg));
+ 	vlan_cfg.extended_vlan_block_id = block_info->block_id;
+ 	/* if found recycled entry reuse it, otherwise create new one */
+ 	vlan_cfg.entry_index =
+@@ -2857,7 +2857,7 @@ __prepare_vlan_egress_filters(struct dsa_switch *ds, uint8_t port, uint16_t vid,
+ 	block_info->vlans[idx].filters_idx[0] = vlan_cfg.entry_index;
+ 
+ 	//	 Entry 1 : ACCEPT VLAN tags that are matching PVID or port VID. Only the outer tags are present
+-	memset(&vlan_cfg, 0, sizeof(vlan_cfg));
++	memset((void *)&vlan_cfg, 0, sizeof(vlan_cfg));
+ 	vlan_cfg.extended_vlan_block_id = block_info->block_id;
+ 	/* if found recycled entry reuse it, otherwise create new one */
+ 	vlan_cfg.entry_index =
+@@ -2929,7 +2929,7 @@ __prepare_vlan_egress_filters_sp_tag(struct dsa_switch *ds, uint8_t port, uint16
+ 
+ 	//Entry 4: only outer tag (SP tag), no PVID  DISCARD
+ 	if (untagged) {
+-		memset(&vlan_cfg, 0, sizeof(vlan_cfg));
++		memset((void *)&vlan_cfg, 0, sizeof(vlan_cfg));
+ 		vlan_cfg.extended_vlan_block_id =
+ 			priv->port_info[port].vlan.egress_vlan_block_info.block_id;
+ 	   vlan_cfg.entry_index = priv->port_info[port].vlan.egress_vlan_block_info.filters_max - 1;
+@@ -2954,7 +2954,7 @@ __prepare_vlan_egress_filters_sp_tag(struct dsa_switch *ds, uint8_t port, uint16
+ 	}
+ 
+ 	//Entry 3: there is any other inner tag -> discard upstream traffic
+-	memset(&vlan_cfg, 0, sizeof(vlan_cfg));
++	memset((void *)&vlan_cfg, 0, sizeof(vlan_cfg));
+ 	vlan_cfg.extended_vlan_block_id =
+ 		priv->port_info[port].vlan.egress_vlan_block_info.block_id;
+ 	vlan_cfg.entry_index = priv->port_info[port].vlan.egress_vlan_block_info.filters_max - 2;
+@@ -2977,7 +2977,7 @@ __prepare_vlan_egress_filters_sp_tag(struct dsa_switch *ds, uint8_t port, uint16
+ 	__print_vlan_filter(priv, __func__, port, &vlan_cfg);
+ 
+ 
+-	memset(&vlan_cfg, 0, sizeof(vlan_cfg));
++	memset((void *)&vlan_cfg, 0, sizeof(vlan_cfg));
+ 	vlan_cfg.extended_vlan_block_id =
+ 		priv->port_info[port].vlan.egress_vlan_block_info.block_id;
+ 	vlan_cfg.entry_index = priv->port_info[port].vlan.egress_vlan_block_info.filters_max - 3;
+@@ -3013,7 +3013,7 @@ __prepare_vlan_egress_filters_sp_tag(struct dsa_switch *ds, uint8_t port, uint16
+ 	 * The number of rules depends on the number of handled vlans */
+ 
+ 	// Entry 0 : ACCEPT VLAN tags that are matching  VID. Outer and Inner tags are present
+-	memset(&vlan_cfg, 0, sizeof(vlan_cfg));
++	memset((void *)&vlan_cfg, 0, sizeof(vlan_cfg));
+ 	vlan_cfg.extended_vlan_block_id =
+ 		priv->port_info[port].vlan.egress_vlan_block_info.block_id;
+ 	/* if found recycled entry reuse it, otherwise create new one */
+@@ -3094,7 +3094,7 @@ __prepare_vlan_egress_filters_off_sp_tag_cpu(struct dsa_switch *ds, uint8_t cpu_
+ 
+ 	// Entry last - 1  : Outer and Inner tags are present.
+ 	// Transparent mode, no tag modifications
+-	memset(&vlan_cfg, 0, sizeof(vlan_cfg));
++	memset((void *)&vlan_cfg, 0, sizeof(vlan_cfg));
+ 	vlan_cfg.extended_vlan_block_id = block_info->block_id;
+ 
+ 	vlan_cfg.entry_index = block_info->filters_max - 2;
+@@ -3116,7 +3116,7 @@ __prepare_vlan_egress_filters_off_sp_tag_cpu(struct dsa_switch *ds, uint8_t cpu_
+ 
+ 	// Entry last : Outer tag is present.
+ 	// Transparent mode, no tag modifications
+-	memset(&vlan_cfg, 0, sizeof(vlan_cfg));
++	memset((void *)&vlan_cfg, 0, sizeof(vlan_cfg));
+ 	vlan_cfg.extended_vlan_block_id = block_info->block_id;
+ 
+ 	vlan_cfg.entry_index = block_info->filters_max - 1;
+@@ -3186,7 +3186,7 @@ __prepare_vlan_egress_filters_sp_tag_cpu(struct dsa_switch *ds, uint8_t cpu_port
+ 
+ 	// Entry 0 : Outer and Inner tags are present. If user port is untagged
+ 	// remove inner tag if the outer tag is matching the user port
+-	memset(&vlan_cfg, 0, sizeof(vlan_cfg));
++	memset((void *)&vlan_cfg, 0, sizeof(vlan_cfg));
+ 	vlan_cfg.extended_vlan_block_id =
+ 		priv->port_info[cpu_port].vlan.egress_vlan_block_info.block_id;
+ 	/* if found recycled entry reuse it, otherwise create new one */
+@@ -3279,7 +3279,7 @@ __prepare_vlan_ingress_filters_sp_tag(struct dsa_switch *ds, uint8_t port, uint1
+ 	 * are placed at the end of the block. */
+ 
+ 	//Entry 6 no other rule applies Outer tag default Inner tag  not present DISCARD
+-	memset(&vlan_cfg, 0, sizeof(vlan_cfg));
++	memset((void *)&vlan_cfg, 0, sizeof(vlan_cfg));
+ 	vlan_cfg.extended_vlan_block_id =
+ 		priv->port_info[port].vlan.ingress_vlan_block_info.block_id;
+ 	vlan_cfg.entry_index = priv->port_info[port].vlan.ingress_vlan_block_info.filters_max - 1;
+@@ -3299,7 +3299,7 @@ __prepare_vlan_ingress_filters_sp_tag(struct dsa_switch *ds, uint8_t port, uint1
+ 	__print_vlan_filter(priv, __func__, port, &vlan_cfg);
+ 
+ 	//Entry 5 no other rule applies Outer tag default Inner tag  present DISCARD
+-	memset(&vlan_cfg, 0, sizeof(vlan_cfg));
++	memset((void *)&vlan_cfg, 0, sizeof(vlan_cfg));
+ 	vlan_cfg.extended_vlan_block_id =
+ 		priv->port_info[port].vlan.ingress_vlan_block_info.block_id;
+ 	vlan_cfg.entry_index = priv->port_info[port].vlan.ingress_vlan_block_info.filters_max - 2;
+@@ -3319,7 +3319,7 @@ __prepare_vlan_ingress_filters_sp_tag(struct dsa_switch *ds, uint8_t port, uint1
+ 	__print_vlan_filter(priv, __func__, port, &vlan_cfg);
+ 
+ 	// Entry 4  untagged pkts. If there's PVID accept and add PVID tag, otherwise reject
+-	memset(&vlan_cfg, 0, sizeof(vlan_cfg));
++	memset((void *)&vlan_cfg, 0, sizeof(vlan_cfg));
+ 	vlan_cfg.extended_vlan_block_id =
+ 		priv->port_info[port].vlan.ingress_vlan_block_info.block_id;
+ 	vlan_cfg.entry_index = priv->port_info[port].vlan.ingress_vlan_block_info.filters_max - 3;
+@@ -3369,7 +3369,7 @@ __prepare_vlan_ingress_filters_sp_tag(struct dsa_switch *ds, uint8_t port, uint1
+ 	__print_vlan_filter(priv, __func__, port, &vlan_cfg);
+ 
+ 	// Entry 3 : Only Outer tag present : not matching  DISCARD
+-	memset(&vlan_cfg, 0, sizeof(vlan_cfg));
++	memset((void *)&vlan_cfg, 0, sizeof(vlan_cfg));
+ 	vlan_cfg.extended_vlan_block_id =
+ 		priv->port_info[port].vlan.ingress_vlan_block_info.block_id;
+ 	vlan_cfg.entry_index = priv->port_info[port].vlan.ingress_vlan_block_info.filters_max - 4;
+@@ -3394,7 +3394,7 @@ __prepare_vlan_ingress_filters_sp_tag(struct dsa_switch *ds, uint8_t port, uint1
+ 	__print_vlan_filter(priv, __func__, port, &vlan_cfg);
+ 
+ 	// Entry 2 : Outer and Inner VLAN tag present : not matching  DISCARD
+-	memset(&vlan_cfg, 0, sizeof(vlan_cfg));
++	memset((void *)&vlan_cfg, 0, sizeof(vlan_cfg));
+ 	vlan_cfg.extended_vlan_block_id =
+ 		priv->port_info[port].vlan.ingress_vlan_block_info.block_id;
+ 	vlan_cfg.entry_index = priv->port_info[port].vlan.ingress_vlan_block_info.filters_max - 5;
+@@ -3430,7 +3430,7 @@ __prepare_vlan_ingress_filters_sp_tag(struct dsa_switch *ds, uint8_t port, uint1
+ 	}
+ 
+ 	// Entry 0 : Outer and Inner VLAN tag present :  matching  ACCEPT
+-	memset(&vlan_cfg, 0, sizeof(vlan_cfg));
++	memset((void *)&vlan_cfg, 0, sizeof(vlan_cfg));
+ 	vlan_cfg.extended_vlan_block_id =
+ 		priv->port_info[port].vlan.ingress_vlan_block_info.block_id;
+ 	/* if found recycled entry reuse it, otherwise create new one */
+@@ -3469,7 +3469,7 @@ __prepare_vlan_ingress_filters_sp_tag(struct dsa_switch *ds, uint8_t port, uint1
+ 		.filters_idx[0] = vlan_cfg.entry_index;
+ 
+ 	// Entry 1 : Only Outer tags is present : matching  ACCEPT
+-	memset(&vlan_cfg, 0, sizeof(vlan_cfg));
++	memset((void *)&vlan_cfg, 0, sizeof(vlan_cfg));
+ 	vlan_cfg.extended_vlan_block_id =
+ 		priv->port_info[port].vlan.ingress_vlan_block_info.block_id;
+ 	/* if found recycled entry reuse it, otherwise create new one */
+@@ -3560,7 +3560,7 @@ __prepare_vlan_ingress_filters_sp_tag_cpu(struct dsa_switch *ds, uint8_t port, u
+ 	}
+ 
+ 	// Entry 0 : Outer and Inner VLAN tag present
+-	memset(&vlan_cfg, 0, sizeof(vlan_cfg));
++	memset((void *)&vlan_cfg, 0, sizeof(vlan_cfg));
+ 	vlan_cfg.extended_vlan_block_id =
+ 		priv->port_info[cpu_port].vlan.ingress_vlan_block_info.block_id;
+ 	/* if found recycled entry reuse it, otherwise create new one */
+@@ -3593,7 +3593,7 @@ __prepare_vlan_ingress_filters_sp_tag_cpu(struct dsa_switch *ds, uint8_t port, u
+ 		.filters_idx[0] = vlan_cfg.entry_index;
+ 
+ 	// Entry 1 : Only Outer tags is present
+-	memset(&vlan_cfg, 0, sizeof(vlan_cfg));
++	memset((void *)&vlan_cfg, 0, sizeof(vlan_cfg));
+ 	vlan_cfg.extended_vlan_block_id =
+ 		priv->port_info[cpu_port].vlan.ingress_vlan_block_info.block_id;
+ 	/* if found recycled entry reuse it, otherwise create new one */
+@@ -3670,7 +3670,7 @@ __prepare_vlan_ingress_filters(struct dsa_switch *ds, uint8_t port, uint16_t vid
+ 	 * stored in reversed order starting from the end of the block */
+ 
+ 	//Entry 6 no other rule applies Outer tag default Inner tag  not present DISCARD
+-	memset(&vlan_cfg, 0, sizeof(vlan_cfg));
++	memset((void *)&vlan_cfg, 0, sizeof(vlan_cfg));
+ 	vlan_cfg.extended_vlan_block_id =
+ 		priv->port_info[port].vlan.ingress_vlan_block_info.block_id;
+ 	vlan_cfg.entry_index =
+@@ -3695,7 +3695,7 @@ __prepare_vlan_ingress_filters(struct dsa_switch *ds, uint8_t port, uint16_t vid
+ 	__print_vlan_filter(priv, __func__, port, &vlan_cfg);
+ 
+ 	//Entry 5 no other rule applies Outer tag default Inner tag  present DISCARD
+-	memset(&vlan_cfg, 0, sizeof(vlan_cfg));
++	memset((void *)&vlan_cfg, 0, sizeof(vlan_cfg));
+ 	vlan_cfg.extended_vlan_block_id =
+ 		priv->port_info[port].vlan.ingress_vlan_block_info.block_id;
+ 	vlan_cfg.entry_index =
+@@ -3720,7 +3720,7 @@ __prepare_vlan_ingress_filters(struct dsa_switch *ds, uint8_t port, uint16_t vid
+ 	__print_vlan_filter(priv, __func__, port, &vlan_cfg);
+ 
+ 	// Entry 4  untagged pkts. If there's PVID accept and add PVID tag, otherwise reject
+-	memset(&vlan_cfg, 0, sizeof(vlan_cfg));
++	memset((void *)&vlan_cfg, 0, sizeof(vlan_cfg));
+ 	vlan_cfg.extended_vlan_block_id =
+ 		priv->port_info[port].vlan.ingress_vlan_block_info.block_id;
+ 	vlan_cfg.entry_index =
+@@ -3753,7 +3753,7 @@ __prepare_vlan_ingress_filters(struct dsa_switch *ds, uint8_t port, uint16_t vid
+ 	__print_vlan_filter(priv, __func__, port, &vlan_cfg);
+ 
+ 	// Entry 3 : Only Outer tag present : not matching  DISCARD
+-	memset(&vlan_cfg, 0, sizeof(vlan_cfg));
++	memset((void *)&vlan_cfg, 0, sizeof(vlan_cfg));
+ 	vlan_cfg.extended_vlan_block_id =
+ 		priv->port_info[port].vlan.ingress_vlan_block_info.block_id;
+ 	vlan_cfg.entry_index =
+@@ -3772,7 +3772,7 @@ __prepare_vlan_ingress_filters(struct dsa_switch *ds, uint8_t port, uint16_t vid
+ 	__print_vlan_filter(priv, __func__, port, &vlan_cfg);
+ 
+ 	// Entry 2 : Outer and Inner VLAN tag present : not matching  DISCARD
+-	memset(&vlan_cfg, 0, sizeof(vlan_cfg));
++	memset((void *)&vlan_cfg, 0, sizeof(vlan_cfg));
+ 	vlan_cfg.extended_vlan_block_id =
+ 		priv->port_info[port].vlan.ingress_vlan_block_info.block_id;
+ 	vlan_cfg.entry_index =
+@@ -3798,7 +3798,7 @@ __prepare_vlan_ingress_filters(struct dsa_switch *ds, uint8_t port, uint16_t vid
+ 		goto EXIT;
+ 
+ 	// Entry 0 : Outer and Inner VLAN tag present :  matching  ACCEPT
+-	memset(&vlan_cfg, 0, sizeof(vlan_cfg));
++	memset((void *)&vlan_cfg, 0, sizeof(vlan_cfg));
+ 	vlan_cfg.extended_vlan_block_id =
+ 		priv->port_info[port].vlan.ingress_vlan_block_info.block_id;
+ 	/* if found recycled entry reuse it, otherwise create new one */
+@@ -3826,7 +3826,7 @@ __prepare_vlan_ingress_filters(struct dsa_switch *ds, uint8_t port, uint16_t vid
+ 		.filters_idx[0] = vlan_cfg.entry_index;
+ 
+ 	// Entry 1 : Only Outer tag is present : matching  ACCEPT
+-	memset(&vlan_cfg, 0, sizeof(vlan_cfg));
++	memset((void *)&vlan_cfg, 0, sizeof(vlan_cfg));
+ 	vlan_cfg.extended_vlan_block_id =
+ 		priv->port_info[port].vlan.ingress_vlan_block_info.block_id;
+ 	/* if found recycled entry reuse it, otherwise create new one */
+@@ -4462,7 +4462,7 @@ static int mxl862xx_port_fdb_dump(struct dsa_switch *ds, int port,
+ 			cb(mac_table_read.mac, mac_table_read.tci & 0x0FFF,
+ 			   mac_table_read.static_entry, data);
+ 
+-		memset(&mac_table_read, 0, sizeof(mac_table_read));
++		memset((void *)&mac_table_read, 0, sizeof(mac_table_read));
+ 	}
+ 
+ EXIT:
+-- 
+2.43.0
+

@@ -1,7 +1,5 @@
 #
-# Copyright (C) 2009 OpenWrt.org
-# Copyright (c) 2018 Intel Corporation
-# Copyright (c) 2022-2023 MaxLinear, Inc.
+# Copyright (c) 2025 MaxLinear, Inc.
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -9,21 +7,18 @@
 
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=pon-img-lib
-PKG_APP_NAME:=sw-upgrade-app
-PKG_VERSION:=3.1.0
+PKG_NAME:=pon-pa-template
+PKG_VERSION:=0.0.2
 PKG_SOURCE_VERSION:=$(PKG_VERSION)
 PKG_SOURCE_PROTO:=git
-PKG_PROJECT:=maxlinear
-PKG_SOURCE_NAME:=pon_img_lib
-CONFIG_UGW_PKG_SOURCE_URL:=https://github.com
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.xz
+PKG_PROJECT:=mxl/pon
+PKG_SOURCE_NAME:=pon_pa_template
+CONFIG_UGW_PKG_SOURCE_URL:=ssh://git@git.maxlinear.com
 PKG_SOURCE_URL:=$(CONFIG_UGW_PKG_SOURCE_URL)/$(PKG_PROJECT)/$(PKG_SOURCE_NAME).git
-PKG_MIRROR_HASH:=9dbf6a96813159cec6bf6e1140178ae7f7f5dc79f8439a1750bd26eab5fb90a6
+PKG_MIRROR_HASH:=15ce26361d41a0c86a4ca8f69dd7e883f82cf7afc31dcd2bce3e2c057e2ef4b4
 PKG_RELEASE:=1
 PKG_FIXUP:=autoreconf
 PKG_BUILD_PARALLEL:=1
-PKG_BIN_DIR=usr/bin
 PKG_INSTALL:=1
 PKG_LICENSE:=BSD-2-Clause
 PKG_LICENSE_FILES:=LICENSE
@@ -45,32 +40,16 @@ STAMP_BUILT=$(PKG_BUILD_DIR)/$(CONFIGURE_PATH)/.built
 define Package/$(PKG_NAME)
   SECTION:=application
   CATEGORY:=MaxLinear
-  TITLE:= PON Image Library
+  TITLE:= PON PA Template
   URL:=https://www.maxlinear.com
   MAINTAINER:=MaxLinear
   MENU:=1
   SUBMENU:=PON
-  DEPENDS:=+pon-adapter +ifxos +libubox \
-	+libsafec3-7
-endef
-
-define Package/$(PKG_NAME)-$(PKG_APP_NAME)
-  SECTION:=application
-  CATEGORY:=MaxLinear
-  TITLE:= PON Software Upgrade Application
-  URL:=https://www.maxlinear.com
-  MAINTAINER:=MaxLinear
-  SUBMENU:=PON
-  DEPENDS:=$(PKG_NAME) +libubus
+  DEPENDS:=+pon-adapter
 endef
 
 define Package/$(PKG_NAME)/description
  PON Image Library
-endef
-
-define Package/$(PKG_NAME)-$(PKG_APP_NAME)/description
- PON Software Upgrade Application
- This tool allows executing the Software Upgrade without OMCI
 endef
 
 # make the submake silent:
@@ -82,15 +61,10 @@ MAKE_FLAGS+=-s
 endif
 
 CONFIGURE_ARGS += \
-	--enable-ifxos-include="-I$(STAGING_DIR)/usr/include/ifxos" \
-	--enable-ifxos-library="-L$(STAGING_DIR)/usr/lib" \
 	--enable-pon-adapter-include="-I$(STAGING_DIR)/usr/include/pon_adapter" \
 	--enable-pon-adapter-library="-L$(STAGING_DIR)/usr/lib"
 
 TARGET_CFLAGS += -Werror
-
-#include path for safec 3.7
-TARGET_CFLAGS += -I$(STAGING_DIR)/usr/include/safeclib
 
 define Build/Configure
 	mkdir -p $(PKG_BUILD_DIR)/$(CONFIGURE_PATH)
@@ -103,31 +77,16 @@ define Build/Clean
 	$(call Build/Clean/Default)
 endef
 
-define Build/InstallDev
+define Build/InstallDev_
 	$(INSTALL_DIR) $(1)/usr/include/pon_img
 	$(CP) $(PKG_BUILD_DIR)/include/*.h $(1)/usr/include/pon_img
 endef
 
 define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libponimg.so* $(1)/usr/lib
-
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libpatemplate.so* $(1)/usr/lib
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
-	$(INSTALL_BIN) ./files/etc/uci-defaults/omci-pa-ponimglib $(1)/etc/uci-defaults/
-
-	# install own scripts if no UGW upgrade utils package is included
-ifeq ($(CONFIG_PACKAGE_secure_upgrade_utils)$(CONFIG_PACKAGE_upgrade_utils),)
-	$(INSTALL_DIR) $(1)/sbin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/pon_img_split $(1)/sbin/
-	$(INSTALL_BIN) ./files/sbin/uboot_img_vars.sh $(1)/sbin/
-	$(INSTALL_BIN) ./files/sbin/secure_upgrade.sh $(1)/sbin/
-endif
-endef
-
-define Package/$(PKG_NAME)-$(PKG_APP_NAME)/install
-	$(INSTALL_DIR) $(1)/$(PKG_BIN_DIR)
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/pon_sw_upgrade $(1)/$(PKG_BIN_DIR)
+	$(INSTALL_BIN) ./files/omci-pa-template $(1)/etc/uci-defaults/
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
-$(eval $(call BuildPackage,$(PKG_NAME)-$(PKG_APP_NAME)))
