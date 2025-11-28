@@ -22,7 +22,7 @@ fi
 # partition (manufacturing data partition).
 # The utility is only available in URX UPDK builds.
 # In others cases a default value derived from ethaddr will be used.
-nSerial=$(readmfg -s PON_SERIAL 2>/dev/null)
+nSerial=$(readmfg -p PON_SERIAL 2>/dev/null)
 if [ -z "$nSerial" ]; then
 	ethaddr=$(awk 'BEGIN{RS=" ";FS="="} $1 == "ethaddr" {print $2}' /proc/cmdline)
 	[ -z "$ethaddr" ] && ethaddr="ac:9a:96:00:00:00"

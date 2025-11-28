@@ -1,0 +1,293 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: "Langer, Thomas" <tlanger@maxlinear.com>
+Date: Wed, 24 Sep 2025 13:51:50 +0200
+Subject: [PATCH] Fix json printout in iplink pon types
+
+---
+ ip/iplink_gem.c     | 30 +++++++++++---------
+ ip/iplink_llid.c    | 13 +++++----
+ ip/iplink_pmapper.c | 68 +++++++++++++++++++++++++++++++--------------
+ ip/iplink_pon.c     |  7 +++--
+ ip/iplink_tcont.c   |  4 +--
+ 5 files changed, 77 insertions(+), 45 deletions(-)
+
+diff --git a/ip/iplink_gem.c b/ip/iplink_gem.c
+index 6051da9291d..335fe3c801e 100644
+--- a/ip/iplink_gem.c
++++ b/ip/iplink_gem.c
+@@ -219,55 +219,59 @@ static void gem_print_opt(struct link_util *lu, FILE *f, struct rtattr *tb[])
+ 
+ 	if (tb[IFLA_PON_GEM_IDX]) {
+ 		gem_idx = rta_getattr_u16(tb[IFLA_PON_GEM_IDX]);
+-		fprintf(f, "idx: %u ", gem_idx);
++		print_uint(PRINT_ANY, "idx", "idx %u ", gem_idx);
+ 	}
+ 	if (tb[IFLA_PON_GEM_ID]) {
+ 		gem_id = rta_getattr_u32(tb[IFLA_PON_GEM_ID]);
+-		fprintf(f, "id: %u ", gem_id);
++		print_uint(PRINT_ANY, "id", "id %u ", gem_id);
+ 	}
+ 	if (tb[IFLA_PON_GEM_TRAFFIC_TYPE]) {
+-		gem_traffic_type = rta_getattr_u8(tb[IFLA_PON_GEM_TRAFFIC_TYPE]);
+-		fprintf(f, "traffic type: %u ", gem_traffic_type);
++		gem_traffic_type =
++			rta_getattr_u8(tb[IFLA_PON_GEM_TRAFFIC_TYPE]);
++		print_uint(PRINT_ANY, "traffic_type", "traffic_type %u ",
++			   gem_traffic_type);
+ 	}
+ 	if (tb[IFLA_PON_GEM_DIR]) {
+ 		gem_dir = rta_getattr_u8(tb[IFLA_PON_GEM_DIR]);
+-		fprintf(f, "dir: %u ", gem_dir);
++		print_uint(PRINT_ANY, "dir", "dir %u ", gem_dir);
+ 	}
+ 	if (tb[IFLA_PON_GEM_ENC]) {
+ 		gem_enc = rta_getattr_u8(tb[IFLA_PON_GEM_ENC]);
+-		fprintf(f, "enc: %u ", gem_enc);
++		print_uint(PRINT_ANY, "enc", "enc %u ", gem_enc);
+ 	}
+ 	if (tb[IFLA_PON_GEM_MAX_SIZE]) {
+ 		gem_max_size = rta_getattr_u16(tb[IFLA_PON_GEM_MAX_SIZE]);
+-		fprintf(f, "max size: %u ", gem_max_size);
++		print_uint(PRINT_ANY, "max_size", "max_size %u ", gem_max_size);
+ 	}
+ 	if (tb[IFLA_PON_GEM_TCONT]) {
+ 		const char *name;
+ 
+ 		tcont_idx = rta_getattr_u32(tb[IFLA_PON_GEM_TCONT]);
+ 		if (tcont_idx == 0) {
+-			fprintf(f, "dsonly ");
++			print_null(PRINT_ANY, "dsonly", "dsonly ", NULL);
+ 		} else {
+ 			name = if_indextoname(tcont_idx, tcont_name);
+ 
+ 			if (name)
+-				fprintf(f, "tcont: %s ", name);
++				print_string(PRINT_ANY, "tcont", "tcont %s ",
++					     name);
+ 			else
+-				fprintf(f, "tcont: %u ", tcont_idx);
++				print_uint(PRINT_ANY, "tcont", "tcont %u ",
++					   tcont_idx);
+ 		}
+ 	}
+ 	if (tb[IFLA_PON_GEM_MC]) {
+ 		gem_mc = rta_getattr_u8(tb[IFLA_PON_GEM_MC]);
+-		fprintf(f, "mc: %u ", gem_mc);
++		print_uint(PRINT_ANY, "mc", "mc %u ", gem_mc);
+ 	}
+ 	if (tb[IFLA_PON_GEM_BP]) {
+ 		gem_mc = rta_getattr_u16(tb[IFLA_PON_GEM_BP]);
+-		fprintf(f, "bp: %u ", gem_mc);
++		print_uint(PRINT_ANY, "bp", "bp %u ", gem_mc);
+ 	}
+ 
+ 	if (tb[IFLA_PON_GEM_CTP]) {
+ 		gem_ctp = rta_getattr_u32(tb[IFLA_PON_GEM_CTP]);
+-		fprintf(f, "ctp: %u ", gem_ctp);
++		print_uint(PRINT_ANY, "ctp", "ctp %u ", gem_ctp);
+ 	}
+ }
+ 
+diff --git a/ip/iplink_llid.c b/ip/iplink_llid.c
+index d8de9b85326..caed7a08133 100644
+--- a/ip/iplink_llid.c
++++ b/ip/iplink_llid.c
+@@ -147,25 +147,26 @@ static void llid_print_opt(struct link_util *lu, FILE *f, struct rtattr *tb[])
+ 
+ 	if (tb[IFLA_PON_LLID_IDX]) {
+ 		idx = rta_getattr_u8(tb[IFLA_PON_LLID_IDX]);
+-		fprintf(f, "idx: %u ", idx);
++		print_uint(PRINT_ANY, "idx", "idx %u ", idx);
+ 	}
+ 
+ 	if (tb[IFLA_PON_LLID_NUM_OF_QUEUES]) {
+ 		num_of_queues = rta_getattr_u8(tb[IFLA_PON_LLID_NUM_OF_QUEUES]);
+-		fprintf(f, "num_of_queues: %u ", num_of_queues);
++		print_uint(PRINT_ANY, "num_of_queues", "num_of_queues %u ",
++			   num_of_queues);
+ 	}
+ 
+ 	for (i = 0; i < 8; i++) {
+ 		if (tb[IFLA_PON_LLID_PMAP_PCP_0 + i]) {
+-
+-			queue = rta_getattr_u16(tb[IFLA_PON_LLID_PMAP_PCP_0 + i]);
+-			fprintf(f, "pcp %i: %u ", i, queue);
++			queue = rta_getattr_u16(
++				tb[IFLA_PON_LLID_PMAP_PCP_0 + i]);
++			print_uint(PRINT_ANY, "pcp", "pcp %u ", queue);
+ 		}
+ 	}
+ 
+ 	if (tb[IFLA_PON_LLID_PMAP_PCP_DEF]) {
+ 		pcpdef = rta_getattr_u16(tb[IFLA_PON_LLID_PMAP_PCP_DEF]);
+-		fprintf(f, "pcpdef: %u ", pcpdef);
++		print_uint(PRINT_ANY, "pcpdef", "pcpdef %u ", pcpdef);
+ 	}
+ }
+ 
+diff --git a/ip/iplink_pmapper.c b/ip/iplink_pmapper.c
+index 4d5fed99adb..2efa73939b0 100644
+--- a/ip/iplink_pmapper.c
++++ b/ip/iplink_pmapper.c
+@@ -264,6 +264,12 @@ static int pmapper_parse_opt(struct link_util *lu, int argc, char **argv,
+ 	return 0;
+ }
+ 
++static const char *pmapper_mode_str[] = {
++	[DP_PMAP_PCP] = "pcp",
++	[DP_PMAP_DSCP] = "dscp",
++	[DP_PMAP_DSCP_ONLY] = "dscp_only",
++};
++
+ static void pmapper_print_opt(struct link_util *lu, FILE *f, struct rtattr *tb[])
+ {
+ 	__u32 gem_if_idx;
+@@ -283,70 +289,90 @@ static void pmapper_print_opt(struct link_util *lu, FILE *f, struct rtattr *tb[]
+ 
+ 	switch (mode) {
+ 	case DP_PMAP_PCP:
+-		fprintf(f, "mode: pcp ");
+-		break;
+ 	case DP_PMAP_DSCP:
+-		fprintf(f, "mode: dscp ");
+-		break;
+ 	case DP_PMAP_DSCP_ONLY:
+-		fprintf(f, "mode: dscp_only ");
+ 		break;
++	default:
++		mode = DP_PMAP_PCP;
+ 	}
++	print_string(PRINT_ANY, "mode", "mode %s ", pmapper_mode_str[mode]);
+ 
++	open_json_array(PRINT_JSON, "pcp");
+ 	for (i = 0; i < 8; i++) {
+ 		if (tb[IFLA_PON_PMAPPER_PCP_0 + i]) {
+ 			const char *name;
+ 
+-			gem_if_idx = rta_getattr_u32(tb[IFLA_PON_PMAPPER_PCP_0 + i]);
++			gem_if_idx =
++				rta_getattr_u32(tb[IFLA_PON_PMAPPER_PCP_0 + i]);
+ 			name = if_indextoname(gem_if_idx, gem_name);
+ 
++			open_json_object(NULL);
++			print_uint(PRINT_ANY, "index", "pcp %u: ", i);
++
+ 			if (name)
+-				fprintf(f, "pcp %i: %s ", i, name);
++				print_string(PRINT_ANY, "pcp", "%s ", name);
+ 			else
+-				fprintf(f, "pcp %i: %u ", i, gem_if_idx);
+-		}
++				print_uint(PRINT_ANY, "pcp", "%u ", gem_if_idx);
+ 
+-		if (tb[IFLA_PON_GEM_CTP_0 + i]) {
+-			gem_ctp = rta_getattr_u32(tb[IFLA_PON_GEM_CTP_0 + i]);
+-			fprintf(f, "ctp: %u ", gem_ctp);
++			if (tb[IFLA_PON_GEM_CTP_0 + i]) {
++				gem_ctp = rta_getattr_u32(
++					tb[IFLA_PON_GEM_CTP_0 + i]);
++				print_uint(PRINT_ANY, "ctp", "ctp: %u ", gem_ctp);
++			}
++			close_json_object();
+ 		}
+ 	}
++	close_json_array(PRINT_JSON, NULL);
+ 
+ 	if (tb[IFLA_PON_PMAPPER_PCP_DEF]) {
+ 		pcpdef = rta_getattr_u8(tb[IFLA_PON_PMAPPER_PCP_DEF]);
+-		fprintf(f, "pcpdef: %u ", pcpdef);
++		print_uint(PRINT_ANY, "pcpdef", "pcpdef: %u ", pcpdef);
+ 	}
+ 
+ 	if (tb[IFLA_PON_PMAPPER_BP]) {
+ 		bp = rta_getattr_u16(tb[IFLA_PON_PMAPPER_BP]);
+-		fprintf(f, "bp: %u ", bp);
++		print_uint(PRINT_ANY, "bp", "bp: %u ", bp);
+ 	}
+ 
+ 	nest = tb[IFLA_PON_PMAPPER_DSCP];
+ 	if ((mode == DP_PMAP_DSCP || mode == DP_PMAP_DSCP_ONLY) && nest) {
+ 		struct rtattr *dscp[IFLA_PON_PMAPPER_DSCP_MAX + 1];
++		const char *sep = "";
+ 
+ 		parse_rtattr_nested(dscp, IFLA_PON_PMAPPER_DSCP_MAX, nest);
+ 
+-		fprintf(f, "\n    dscp [ ");
++		open_json_array(PRINT_JSON, "dscp");
++		print_null(PRINT_FP, NULL, "\n    dscp [", NULL);
++
+ 		for (i = 0; i < 64; i++) {
+ 			__u8 dscp_map;
+ 
++			print_string(PRINT_FP, NULL, "%s", sep);
++			sep = ",";
++
+ 			if (!dscp[IFLA_PON_PMAPPER_DSCP_0 + i]) {
+-				fprintf(f, "-, ");
++				print_null(PRINT_FP, NULL, " -", NULL);
+ 				continue;
+ 			}
+ 
+-			dscp_map = rta_getattr_u8(dscp[IFLA_PON_PMAPPER_DSCP_0 + i]);
++			open_json_object(NULL);
++			print_uint(PRINT_JSON, "index", NULL, i);
++
++			dscp_map = rta_getattr_u8(
++				dscp[IFLA_PON_PMAPPER_DSCP_0 + i]);
+ 
+ 			if (dscp_map == PON_PMAPPER_DSCP_DEFAULT)
+-				fprintf(f, "def, ");
++				print_string(PRINT_ANY, "dscp", " %s", "def");
+ 			else
+-				fprintf(f, "%hhu, ", dscp_map);
++				print_uint(PRINT_ANY, "dscp", " %hhu",
++					   dscp_map);
++			close_json_object();
+ 		}
+-		fprintf(f, "] ");
++
++		print_null(PRINT_FP, NULL, " ]", NULL);
++		close_json_array(PRINT_JSON, NULL);
+ 	}
+-	fprintf(f, "\n    ");
++	print_null(PRINT_FP, NULL, "\n    ", NULL);
+ }
+ 
+ static void pmapper_print_help(struct link_util *lu, int argc, char **argv,
+diff --git a/ip/iplink_pon.c b/ip/iplink_pon.c
+index 08a0724c423..cc6440d927f 100644
+--- a/ip/iplink_pon.c
++++ b/ip/iplink_pon.c
+@@ -77,9 +77,10 @@ static void pon_print_opt(struct link_util *lu, FILE *f, struct rtattr *tb[])
+ 		return;
+ 
+ 	if (tb[IFLA_PON_QUEUE_LOOKUP_MODE]) {
+-		queue_lookup_mode
+-			= rta_getattr_u8(tb[IFLA_PON_QUEUE_LOOKUP_MODE]);
+-		fprintf(f, "queue_lookup_mode: %u ", queue_lookup_mode);
++		queue_lookup_mode =
++			rta_getattr_u8(tb[IFLA_PON_QUEUE_LOOKUP_MODE]);
++		print_uint(PRINT_ANY, "queue_lookup_mode",
++			   "queue_lookup_mode %u ", queue_lookup_mode);
+ 	}
+ }
+ 
+diff --git a/ip/iplink_tcont.c b/ip/iplink_tcont.c
+index b2d344f69f0..ff07e0fae69 100644
+--- a/ip/iplink_tcont.c
++++ b/ip/iplink_tcont.c
+@@ -89,11 +89,11 @@ static void tcont_print_opt(struct link_util *lu, FILE *f, struct rtattr *tb[])
+ 
+ 	if (tb[IFLA_PON_TCONT_IDX]) {
+ 		tcont_idx = rta_getattr_u16(tb[IFLA_PON_TCONT_IDX]);
+-		fprintf(f, "idx: %u ", tcont_idx);
++		print_uint(PRINT_ANY, "idx", "idx %u ", tcont_idx);
+ 	}
+ 	if (tb[IFLA_PON_TCONT_ID]) {
+ 		tcont_id = rta_getattr_u32(tb[IFLA_PON_TCONT_ID]);
+-		fprintf(f, "id: %u ", tcont_id);
++		print_uint(PRINT_ANY, "id", "id %u ", tcont_id);
+ 	}
+ }
+ 
+-- 

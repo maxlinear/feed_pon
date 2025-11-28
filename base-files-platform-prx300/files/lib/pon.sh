@@ -184,18 +184,6 @@ pon_oui_get() {
 	echo $(pon_base_mac_get) | awk 'BEGIN{FS=":"} {printf "%s:%s:%s\n", $1,$2,$3}'
 }
 
-pon_ploam_emergency_stop_state_get() {
-	local retval="0"
-	local state=$(fw_printenv -n ploam_emergency_stop_state 2>&-)
-
-	case "$state" in
-	0 | 1)
-		retval="$state"
-		;;
-	esac
-	echo $retval
-}
-
 pon_is_10g_platform() {
 	# true
 	return 0

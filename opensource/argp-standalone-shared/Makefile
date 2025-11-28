@@ -24,7 +24,7 @@ PKG_FIXUP:=patch-libtool autoreconf
 PKG_INSTALL=1
 
 PKG_LICENSE:=LGPL-2.1
-PKG_LICENSE:=Makefile.am
+PKG_LICENSE_FILES:=Makefile.am
 
 include $(INCLUDE_DIR)/package.mk
 

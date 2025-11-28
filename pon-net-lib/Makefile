@@ -11,7 +11,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=pon-net-lib
-PKG_VERSION:=2.2.0
+PKG_VERSION:=2.2.1
 PKG_SOURCE_VERSION:=$(PKG_VERSION)
 PKG_SOURCE_PROTO:=git
 PKG_PROJECT:=maxlinear
@@ -19,7 +19,7 @@ PKG_SOURCE_NAME:=pon_net_lib
 CONFIG_UGW_PKG_SOURCE_URL:=https://github.com
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.xz
 PKG_SOURCE_URL:=$(CONFIG_UGW_PKG_SOURCE_URL)/$(PKG_PROJECT)/$(PKG_SOURCE_NAME).git
-PKG_MIRROR_HASH:=0e94c38573b8215ee7474c2e8f94669affd944e77391824fb9225c018a5f23f5
+PKG_MIRROR_HASH:=2f612e124e1576172fbedff519bbcc43322d3fb8eb4b91f93e3fb56ed4745b17
 PKG_RELEASE:=1
 PKG_FIXUP:=autoreconf
 PKG_BUILD_PARALLEL:=1
@@ -135,6 +135,7 @@ define Package/$(PKG_NAME)/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libponnet.so* $(1)/usr/lib
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
 	$(INSTALL_BIN) ./files/etc/uci-defaults/ds_queues $(1)/etc/uci-defaults/
+	$(INSTALL_BIN) ./files/etc/uci-defaults/omci-pa-ponnetlib $(1)/etc/uci-defaults/
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))

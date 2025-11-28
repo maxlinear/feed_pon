@@ -165,13 +165,18 @@ find_optic_mode() {
     else
         # needs detection from sfp eeprom
         br_hex="$($READ_EEPROM 12 1 | hexbytes)"
-        br_real=$(printf "%d" "$((0x${br_hex} * 100))")
-        if [ "$br_real" -gt 9000 ]; then
-            optic_mode="xgspon"
-        elif [ "$br_real" -le 2500 ]; then
-            optic_mode="gpon"
+        if [ -n "$br_hex" ] && echo "$br_hex" | grep -Eq '^[0-9a-fA-F]+$'; then
+            br_real=$(printf "%d" "$((0x${br_hex} * 100))")
+            if [ "$br_real" -gt 9000 ]; then
+                optic_mode="xgspon"
+            elif [ "$br_real" -le 2500 ]; then
+                optic_mode="gpon"
+            else
+                log_console "pon mode not detectable from nominal bitrate $br_real"
+                optic_mode=""
+            fi
         else
-            log_console "pon mode not detectable from nominal bitrate $br_real"
+            log_console "Invalid or empty br_hex value: '$br_hex'"
             optic_mode=""
         fi
     fi
@@ -205,8 +210,8 @@ check_optic_change() {
 
     if [ "$optic_change" ]; then
         # Delete previous mode and transceiver configs.
-        for opt in optic.common.mode optic.offsets optic.gpon optic.xgspon optic.xgpon optic.ngpon2_2G5 optic.ngpon2_10G ; do
-            uci -q delete $opt;
+        for opt in common.mode offsets gpon xgspon xgpon ngpon2_2G5 ngpon2_10G ; do
+            uci -q delete optic.$opt;
         done
         config_apply optic "$OPTIC_DB_LOCATION/default"
         config_apply optic "$OPTIC_DB_LOCATION/default-$BOARD_NAME"
@@ -227,14 +232,17 @@ check_serdes_change() {
     [ "$serdes_version" != "$IMAGE_VERSION" ] && serdes_change=1
 
     if [ "$serdes_change" ]; then
-        config_apply serdes $(serdes_files_get "$board_name")
+        config_apply serdes $(serdes_files_get "$BOARD_NAME")
         uci set serdes.generic.version="$IMAGE_VERSION"
         uci commit serdes
     fi
 }
 
 EEPROM_PATH="$(uci -q get optic.sfp_eeprom.serial_id)"
-[ -z "$EEPROM_PATH" ] && return 1
+if [ -z "$EEPROM_PATH" ]; then
+    log_console "[pondb.sh] Failed to get EEPROM path from UCI"
+    exit 1
+fi
 
 image_version_get
 
@@ -251,6 +259,12 @@ BOARD_NAME="$(pon_board_base_name)"
 
 # only execute when called directly
 if [ "$(basename $0)" = "pondb.sh" ]; then
-    check_optic_change
+    # empty name indicates a not plugged transceiver or Ethernet mode
+    if [ -z "$TRANSCEIVER_NAME" ]; then
+        uci set optic.common.transceiver_name="unknown"
+        uci commit optic
+    else
+        check_optic_change
+    fi
     check_serdes_change
 fi

@@ -1,8 +1,5 @@
 #
-# Copyright (C) 2024 MaxLinear, Inc.
-#
-# This is free software, licensed under the GNU General Public License v2.
-# See /LICENSE for more information.
+# Copyright (C) 2024 - 2025 MaxLinear, Inc.
 #
 
 include $(TOPDIR)/rules.mk
@@ -10,7 +7,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=pon-omci-files
 PKG_RELEASE:=1
 PKG_BIN_DIR=usr/bin
-PKG_LICENSE:=MaxLinear
+PKG_LICENSE:=BSD-2-Clause
 PKG_LICENSE_FILES:=LICENSE
 PKG_CONFIG_DEPENDS+= \
 	CONFIG_GPON_OMCI_ONU_LCT_DISABLE

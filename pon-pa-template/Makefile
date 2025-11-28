@@ -1,6 +1,5 @@
 #
-# Copyright (C) 2020 - 2023 MaxLinear, Inc.
-# Copyright (C) 2017 Intel Corporation
+# Copyright (c) 2025 MaxLinear, Inc.
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -8,16 +7,15 @@
 
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=pon-adapter
-PKG_VERSION:=2.1.2
+PKG_NAME:=pon-pa-template
+PKG_VERSION:=0.0.2
 PKG_SOURCE_VERSION:=$(PKG_VERSION)
 PKG_SOURCE_PROTO:=git
 PKG_PROJECT:=maxlinear
-PKG_SOURCE_NAME:=pon_adapter
+PKG_SOURCE_NAME:=pon_pa_template
 CONFIG_UGW_PKG_SOURCE_URL:=https://github.com
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.xz
 PKG_SOURCE_URL:=$(CONFIG_UGW_PKG_SOURCE_URL)/$(PKG_PROJECT)/$(PKG_SOURCE_NAME).git
-PKG_MIRROR_HASH:=f198b743822b4f050302e0f90fa3e069797877fa89214716489e7a906e6c8367
+PKG_MIRROR_HASH:=15ce26361d41a0c86a4ca8f69dd7e883f82cf7afc31dcd2bce3e2c057e2ef4b4
 PKG_RELEASE:=1
 PKG_FIXUP:=autoreconf
 PKG_BUILD_PARALLEL:=1
@@ -30,7 +28,7 @@ include $(INCLUDE_DIR)/package.mk
 
 # avoid build directly in the source directories
 PKG_AUTOMAKE_PATHS:=.
-CONFIGURE_PATH=build_$(PKGARCH)_$(BUILD_VARIANT)
+CONFIGURE_PATH=build_$(PKGARCH)
 CONFIGURE_CMD=../configure
 MAKE_PATH=$(CONFIGURE_PATH)
 PKG_INSTALL_DIR=$(PKG_BUILD_DIR)/$(CONFIGURE_PATH)/ipkg-install
@@ -42,21 +40,17 @@ STAMP_BUILT=$(PKG_BUILD_DIR)/$(CONFIGURE_PATH)/.built
 define Package/$(PKG_NAME)
   SECTION:=application
   CATEGORY:=MaxLinear
-  TITLE:= PON Adapter
+  TITLE:= PON PA Template
   URL:=https://www.maxlinear.com
   MAINTAINER:=MaxLinear
   MENU:=1
   SUBMENU:=PON
+  DEPENDS:=+pon-adapter
 endef
 
 define Package/$(PKG_NAME)/description
-  PON Adapter is a generic interface layer to connect xPON applications
-  like OMCI with one or more low-level libraries, which implements the
-  hardware or system specific details.
-
+ PON Image Library
 endef
-
-CONFIGURE_ARGS+=$(CONFIGURE_ARGS-$(BUILD_VARIANT))
 
 # make the submake silent:
 ifeq ($(QUIET),1)
@@ -65,6 +59,10 @@ endif
 ifneq (,$(findstring 99,$(V)))
 MAKE_FLAGS+=-s
 endif
+
+CONFIGURE_ARGS += \
+	--enable-pon-adapter-include="-I$(STAGING_DIR)/usr/include/pon_adapter" \
+	--enable-pon-adapter-library="-L$(STAGING_DIR)/usr/lib"
 
 TARGET_CFLAGS += -Werror
 
@@ -79,17 +77,16 @@ define Build/Clean
 	$(call Build/Clean/Default)
 endef
 
-define Build/InstallDev
-	$(INSTALL_DIR) $(1)/usr/include/pon_adapter
-	$(CP) $(PKG_INSTALL_DIR)/usr/include/* $(1)/usr/include/pon_adapter/
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libadapter.so* $(1)/usr/lib/
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libadapter.a $(1)/usr/lib/
+define Build/InstallDev_
+	$(INSTALL_DIR) $(1)/usr/include/pon_img
+	$(CP) $(PKG_BUILD_DIR)/include/*.h $(1)/usr/include/pon_img
 endef
 
 define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libadapter.so* $(1)/usr/lib
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libpatemplate.so* $(1)/usr/lib
+	$(INSTALL_DIR) $(1)/etc/uci-defaults
+	$(INSTALL_BIN) ./files/omci-pa-template $(1)/etc/uci-defaults/
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))

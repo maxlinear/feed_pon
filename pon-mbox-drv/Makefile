@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2020 - 2023 MaxLinear, Inc.
+# Copyright (C) 2020 - 2025 MaxLinear, Inc.
 # Copyright (c) 2017 - 2020 Intel Corporation
 # Copyright (C) 2016 OpenWrt.org
 #
@@ -10,7 +10,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pon-mbox-drv
-PKG_VERSION:=1.27.2
+PKG_VERSION:=1.27.4
 PKG_SOURCE_VERSION:=$(PKG_VERSION)
 PKG_SOURCE_PROTO:=git
 PKG_PROJECT:=maxlinear
@@ -18,7 +18,7 @@ PKG_SOURCE_NAME:=pon_mbox_drv
 CONFIG_UGW_PKG_SOURCE_URL:=https://github.com
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.xz
 PKG_SOURCE_URL:=$(CONFIG_UGW_PKG_SOURCE_URL)/$(PKG_PROJECT)/$(PKG_SOURCE_NAME).git
-PKG_MIRROR_HASH:=fd5af173e1b32e6b78f287199b238f02a0004f5d79a6a4a6a1242ec1bfbf5a9d
+PKG_MIRROR_HASH:=5326629d3224d142c2fc7e05e52be021343652184edece099760ed48a61392c8
 PKG_BUILD_PARALLEL:=1
 PKG_LICENSE:=GPL-2.0-only or BSD-2-Clause
 PKG_LICENSE_FILES:=LICENSE
@@ -54,7 +54,7 @@ define KernelPackage/$(PKG_NAME)-eth
   TITLE:=PON Ethernet driver
   URL:=https://www.maxlinear.com
   MAINTAINER:=MaxLinear
-  DEPENDS:= +kmod-$(PKG_NAME) +PACKAGE_kmod-qos-tc:kmod-qos-tc +kmod-sched-prio +kmod-gwdpa-dpm +TARGET_intel_x86_lgm:kmod-mxl_pon_hgu_vuni_lgm
+  DEPENDS:= +kmod-$(PKG_NAME) +PACKAGE_kmod-qos-tc:kmod-qos-tc +kmod-sched-prio +kmod-gwdpa-dpm +TARGET_intel_x86_lgm:kmod-pon-mbox-drv-vuni
   FILES:=$(PKG_BUILD_DIR)/eth/mod_pon_eth.ko
   AUTOLOAD:=$(call AutoProbe,mod_pon_eth)
 endef
@@ -67,6 +67,15 @@ define KernelPackage/$(PKG_NAME)-ptp
   DEPENDS:= +kmod-$(PKG_NAME)
   FILES:=$(PKG_BUILD_DIR)/ptp/mod_pon_ptp.ko
   AUTOLOAD:=$(call AutoProbe,mod_pon_ptp)
+endef
+
+define KernelPackage/$(PKG_NAME)-vuni
+  SUBMENU:=MaxLinear
+  TITLE:=PON HGU VUNI driver
+  URL:=https://www.maxlinear.com
+  MAINTAINER:=MaxLinear
+  FILES:=$(PKG_BUILD_DIR)/vuni/mod_pon_hgu_vuni.ko
+  AUTOLOAD:=$(call AutoProbe,mod_pon_hgu_vuni)
 endef
 
 define KernelPackage/$(PKG_NAME)/config
@@ -124,6 +133,10 @@ ifneq ($(CONFIG_PACKAGE_kmod-pon-mbox-drv-ptp),)
 	PON_MAKEDEFS += CONFIG_PON_PTP_DRV=m
 endif
 
+ifneq ($(CONFIG_PACKAGE_kmod-pon-mbox-drv-vuni),)
+	PON_MAKEDEFS += CONFIG_PON_HGU_VUNI_DRV=m
+endif
+
 ifeq ($(CONFIG_PACKAGE_kmod-pon-mbox-drv_KCOV_INSTRUMENT),y)
 	PON_MAKEDEFS += KCOV_INSTRUMENT=y
 endif
@@ -156,3 +169,4 @@ endef
 $(eval $(call KernelPackage,$(PKG_NAME)))
 $(eval $(call KernelPackage,$(PKG_NAME)-eth))
 $(eval $(call KernelPackage,$(PKG_NAME)-ptp))
+$(eval $(call KernelPackage,$(PKG_NAME)-vuni))

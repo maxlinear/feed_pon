@@ -13,12 +13,6 @@ OMCID_BIN=/usr/bin/omcid
 
 source $IPKG_INSTROOT/lib/pon.sh
 
-# This function definitions are needed in case we are running this script on
-# non-falcon board
-pon_ploam_emergency_stop_state_get() {
-	echo "0"
-}
-
 pon_lct_num_get() {
 	# in case this is not overwritten, we don't have a LCT
 	return
@@ -43,10 +37,6 @@ start_service() {
 	local stdout
 	local stderr
 
-	if [ "$(pon_ploam_emergency_stop_state_get)" = "1" ]; then
-		ploam_emerg_stop_state=-e
-	fi
-
 	# by default the output of omcid is redirected to /dev/console (option 2)
 	# read values from config to allow changes to this
 	stdout="$(uci -q get omci.default.stdout)"
@@ -60,7 +50,7 @@ start_service() {
 	if [ "$aon_mode" -ne 1 ]; then
 		procd_open_instance
 		procd_set_param env LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/pon/lib/:/opt/intel/usr/lib/"
-		procd_set_param command ${OMCID_BIN} ${ploam_emerg_stop_state}
+		procd_set_param command ${OMCID_BIN}
 		procd_set_param respawn
 		procd_set_param stdout $stdout
 		procd_set_param stderr $stderr

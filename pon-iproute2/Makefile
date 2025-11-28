@@ -42,7 +42,7 @@ $(call Package/pon-iproute2/Default)
   DEFAULT_VARIANT:=1
   PROVIDES:=ip
   ALTERNATIVES:=200:/sbin/ip:/usr/libexec/ip-tiny
-  DEPENDS:=+libnl-tiny +(PACKAGE_devlink||PACKAGE_rdma):libmnl
+  DEPENDS:=+libnl-tiny +(PACKAGE_pon-ip-full||PACKAGE_pon-devlink||PACKAGE_pon-rdma):libmnl
 endef
 
 define Package/pon-ip-full
@@ -51,7 +51,7 @@ $(call Package/pon-iproute2/Default)
   VARIANT:=ipfull
   PROVIDES:=ip
   ALTERNATIVES:=300:/sbin/ip:/usr/libexec/ip-full
-  DEPENDS:=+libnl-tiny +libbpf +(PACKAGE_devlink||PACKAGE_rdma):libmnl
+  DEPENDS:=+libnl-tiny +libbpf +libmnl
 endef
 
 define Package/pon-tc-tiny
@@ -61,7 +61,7 @@ $(call Package/pon-iproute2/Default)
   DEFAULT_VARIANT:=1
   PROVIDES:=tc
   ALTERNATIVES:=200:/sbin/tc:/usr/libexec/tc-tiny
-  DEPENDS:=+kmod-sched-core +(PACKAGE_devlink||PACKAGE_rdma):libmnl
+  DEPENDS:=+kmod-sched-core +(PACKAGE_pon-ip-full||PACKAGE_pon-devlink||PACKAGE_pon-rdma):libmnl
 endef
 
 define Package/pon-tc-bpf
@@ -70,7 +70,7 @@ $(call Package/pon-iproute2/Default)
   VARIANT:=tcbpf
   PROVIDES:=tc
   ALTERNATIVES:=300:/sbin/tc:/usr/libexec/tc-bpf
-  DEPENDS:=+kmod-sched-core +(PACKAGE_devlink||PACKAGE_rdma):libmnl +libbpf
+  DEPENDS:=+kmod-sched-core +(PACKAGE_pon-ip-full||PACKAGE_pon-devlink||PACKAGE_pon-rdma):libmnl +libbpf
 endef
 
 define Package/pon-tc-full
@@ -79,7 +79,7 @@ $(call Package/pon-iproute2/Default)
   VARIANT:=tcfull
   PROVIDES:=tc
   ALTERNATIVES:=400:/sbin/tc:/usr/libexec/tc-full
-  DEPENDS:=+kmod-sched-core +(PACKAGE_devlink||PACKAGE_rdma):libmnl +libbpf +libxtables +tc-mod-iptables
+  DEPENDS:=+kmod-sched-core +(PACKAGE_pon-ip-full||PACKAGE_pon-devlink||PACKAGE_pon-rdma):libmnl +libbpf +libxtables +tc-mod-iptables
 endef
 
 define Package/pon-tc-mod-iptables
@@ -92,25 +92,25 @@ endef
 define Package/pon-genl
 $(call Package/pon-iproute2/Default)
   TITLE:=General netlink utility frontend
-  DEPENDS:=+libnl-tiny +(PACKAGE_devlink||PACKAGE_rdma):libmnl
+  DEPENDS:=+libnl-tiny +(PACKAGE_pon-ip-full||PACKAGE_pon-devlink||PACKAGE_pon-rdma):libmnl
 endef
 
 define Package/pon-ip-bridge
 $(call Package/pon-iproute2/Default)
   TITLE:=Bridge configuration utility from iproute2
-  DEPENDS:=+libnl-tiny +(PACKAGE_devlink||PACKAGE_rdma):libmnl
+  DEPENDS:=+libnl-tiny +(PACKAGE_pon-ip-full||PACKAGE_pon-devlink||PACKAGE_pon-rdma):libmnl
 endef
 
 define Package/pon-ss
 $(call Package/pon-iproute2/Default)
   TITLE:=Socket statistics utility
-  DEPENDS:=+libnl-tiny +(PACKAGE_devlink||PACKAGE_rdma):libmnl +kmod-netlink-diag
+  DEPENDS:=+libnl-tiny +(PACKAGE_pon-ip-full||PACKAGE_pon-devlink||PACKAGE_pon-rdma):libmnl +kmod-netlink-diag
 endef
 
 define Package/pon-nstat
 $(call Package/pon-iproute2/Default)
   TITLE:=Network statistics utility
-  DEPENDS:=+libnl-tiny +(PACKAGE_devlink||PACKAGE_rdma):libmnl
+  DEPENDS:=+libnl-tiny +(PACKAGE_pon-ip-full||PACKAGE_pon-devlink||PACKAGE_pon-rdma):libmnl
 endef
 
 define Package/pon-devlink
@@ -133,6 +133,7 @@ endif
 ifeq ($(BUILD_VARIANT),ipfull)
   HAVE_ELF:=y
   LIBBPF_FORCE:=on
+  HAVE_MNL:=y
 endif
 
 ifeq ($(BUILD_VARIANT),tctiny)

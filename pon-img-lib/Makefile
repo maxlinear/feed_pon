@@ -50,7 +50,7 @@ define Package/$(PKG_NAME)
   MAINTAINER:=MaxLinear
   MENU:=1
   SUBMENU:=PON
-  DEPENDS:=+pon-adapter +ifxos +ubi-utils +libubox \
+  DEPENDS:=+pon-adapter +ifxos +libubox \
 	+libsafec3-7
 endef
 
@@ -60,7 +60,6 @@ define Package/$(PKG_NAME)-$(PKG_APP_NAME)
   TITLE:= PON Software Upgrade Application
   URL:=https://www.maxlinear.com
   MAINTAINER:=MaxLinear
-  MENU:=1
   SUBMENU:=PON
   DEPENDS:=$(PKG_NAME) +libubus
 endef
@@ -112,6 +111,10 @@ endef
 define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libponimg.so* $(1)/usr/lib
+
+	$(INSTALL_DIR) $(1)/etc/uci-defaults
+	$(INSTALL_BIN) ./files/etc/uci-defaults/omci-pa-ponimglib $(1)/etc/uci-defaults/
+
 	# install own scripts if no UGW upgrade utils package is included
 ifeq ($(CONFIG_PACKAGE_secure_upgrade_utils)$(CONFIG_PACKAGE_upgrade_utils),)
 	$(INSTALL_DIR) $(1)/sbin

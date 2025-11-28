@@ -20,7 +20,7 @@ same_sfp() {
     [ -e "$EEPROM_PATH" ] || return 255
 
     optic_transceiver=$(uci -q get optic.common.transceiver_name)
-    [ "$optic_transceiver" != "$transceiver_name" ] && return 1
+    [ "$optic_transceiver" != "$TRANSCEIVER_NAME" ] && return 1
 
     return 0
 }
@@ -30,4 +30,4 @@ status=$?
 
 [ "$DEBUG" ] && echo "Same SFP? -> $status"
 
-return $status
+exit $status
