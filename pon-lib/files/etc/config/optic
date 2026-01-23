@@ -3,7 +3,6 @@
 # please move it from here to the "default" file in optic-db.
 
 config 'optic' 'common'
-	option 'loop_timing_mode' '3'
 	option 'loop_timing_power_save' '1'
 	option 'laser_hold_time' '0'
 	option 'laser_setup_time' '0'
