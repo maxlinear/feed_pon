@@ -158,28 +158,55 @@ config_apply() {
 find_optic_mode() {
     local optic_mode=$(uci -q get optic.common.mode)
     local br_hex br_real
+    local id_plus_connector transceiver_codes
 
     if [ -n "$optic_mode" ]; then
         # already available in config
-        true
-    else
-        # needs detection from sfp eeprom
-        br_hex="$($READ_EEPROM 12 1 | hexbytes)"
-        if [ -n "$br_hex" ] && echo "$br_hex" | grep -Eq '^[0-9a-fA-F]+$'; then
-            br_real=$(printf "%d" "$((0x${br_hex} * 100))")
-            if [ "$br_real" -gt 9000 ]; then
-                optic_mode="xgspon"
-            elif [ "$br_real" -le 2500 ]; then
-                optic_mode="gpon"
-            else
-                log_console "pon mode not detectable from nominal bitrate $br_real"
-                optic_mode=""
-            fi
-        else
-            log_console "Invalid or empty br_hex value: '$br_hex'"
-            optic_mode=""
-        fi
+        # exit early to avoid unnecessary eeprom read and parsing in case of already detected mode
+        echo "$optic_mode"
+        return
     fi
+
+    # needs detection from sfp eeprom
+    id_plus_connector="$($READ_EEPROM 0 3 | hexbytes)"
+    # log_console "Id and connector (HEX): '$id_plus_connector'"
+    case "$id_plus_connector" in
+        "030401"|"020401") # SFP/SFF with SC connector
+            ;;
+        "030407"|"020407") # SFP/SFF with LC connector
+            transceiver_codes="$($READ_EEPROM 3 7 | hexbytes)"
+            # log_console "Transceiver Codes (HEX): '$transceiver_codes'"
+            case "$transceiver_codes" in
+                "00000000000000") # no bits for Ethernet of FiberChannel modes set
+                    ;;
+                *)
+                    echo "Undefined"
+                    return
+                    ;;
+            esac
+            ;;
+        *)
+            echo "Undefined"
+            return
+            ;;
+    esac
+
+    br_hex="$($READ_EEPROM 12 1 | hexbytes)"
+    if [ -n "$br_hex" ] && echo "$br_hex" | grep -Eq '^[0-9a-fA-F]+$'; then
+        br_real=$(printf "%d" "$((0x${br_hex} * 100))")
+        if [ "$br_real" -gt 9000 ]; then
+            optic_mode="xgspon"
+        elif [ "$br_real" -le 2500 ]; then
+            optic_mode="gpon"
+        else
+            log_console "pon mode not detectable from nominal bitrate $br_real"
+            optic_mode="Undefined"
+        fi
+    else
+        log_console "Invalid or empty br_hex value: '$br_hex'"
+        optic_mode="Undefined"
+    fi
+
     echo "$optic_mode"
 }
 
@@ -187,6 +214,7 @@ update_ponmode() {
     local optic_mode=$(find_optic_mode)
     local pon_mode=$(uci -q get gpon.ponip.pon_mode)
 
+    # log_console "find optic mode: '$optic_mode'"
     [ -z "$optic_mode" ] && return
 
     # ensure that config includes the detected mode
@@ -196,7 +224,7 @@ update_ponmode() {
         uci set "gpon.ponip.pon_mode=$optic_mode"
         uci commit gpon
     else
-        log_console "[optic-db] pon-mode unchanged"
+        log_console "[optic-db] pon-mode unchanged ($optic_mode)"
     fi
 }
 
@@ -224,16 +252,17 @@ check_optic_change() {
 }
 
 check_serdes_change() {
-    local serdes_version serdes_change
+    local serdes_version serdes_transceiver serdes_change
 
-    # we don't have a serdes config for specific transceivers yet.
-    # In case we will get this, the handling here needs to be extended like above.
     serdes_version=$(uci -q get serdes.generic.version)
+    serdes_transceiver=$(uci -q get serdes.generic.transceiver_name)
     [ "$serdes_version" != "$IMAGE_VERSION" ] && serdes_change=1
+    [ "$serdes_transceiver" != "$TRANSCEIVER_NAME" ] && serdes_change=1
 
     if [ "$serdes_change" ]; then
         config_apply serdes $(serdes_files_get "$BOARD_NAME")
         uci set serdes.generic.version="$IMAGE_VERSION"
+        uci set serdes.generic.transceiver_name="$TRANSCEIVER_NAME"
         uci commit serdes
     fi
 }
@@ -259,12 +288,6 @@ BOARD_NAME="$(pon_board_base_name)"
 
 # only execute when called directly
 if [ "$(basename $0)" = "pondb.sh" ]; then
-    # empty name indicates a not plugged transceiver or Ethernet mode
-    if [ -z "$TRANSCEIVER_NAME" ]; then
-        uci set optic.common.transceiver_name="unknown"
-        uci commit optic
-    else
-        check_optic_change
-    fi
+    check_optic_change
     check_serdes_change
 fi
