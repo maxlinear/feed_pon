@@ -171,9 +171,9 @@ find_optic_mode() {
     id_plus_connector="$($READ_EEPROM 0 3 | hexbytes)"
     # log_console "Id and connector (HEX): '$id_plus_connector'"
     case "$id_plus_connector" in
-        "030401"|"020401") # SFP/SFF with SC connector
+        "030401") # SFP with SC connector
             ;;
-        "030407"|"020407") # SFP/SFF with LC connector
+        "030407") # SFP with LC connector
             transceiver_codes="$($READ_EEPROM 3 7 | hexbytes)"
             # log_console "Transceiver Codes (HEX): '$transceiver_codes'"
             case "$transceiver_codes" in
