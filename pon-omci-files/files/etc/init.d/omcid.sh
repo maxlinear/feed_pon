@@ -47,6 +47,21 @@ start_service() {
 	aon_mode="$(uci -q get optic.common.aon_mode)"
 	[ -z "$aon_mode" ] && aon_mode=0
 
+	# In case of undefined pon-mode we do not start the omci daemon, as it
+	# relies on the pon-mode to be set correctly. This can be the case if no
+	# transceiver is detected and or the transceiver is not detected as
+	# supported. The pon-mode is set during boot based on the detected
+	# transceiver and the supported modes for this transceiver. If no
+	# supported mode can be detected, the pon-mode is set to undefined and
+	# we do not start the omci daemon, as it would not work correctly
+	# without a valid pon-mode.
+	case "$(uci -q get gpon.ponip.pon_mode)" in
+	"" | "Undefined")
+		logger -s -t OMCI "Undefined pon-mode, not starting omci daemon"
+		exit 1
+		;;
+	esac
+
 	if [ "$aon_mode" -ne 1 ]; then
 		procd_open_instance
 		procd_set_param env LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/pon/lib/:/opt/intel/usr/lib/"

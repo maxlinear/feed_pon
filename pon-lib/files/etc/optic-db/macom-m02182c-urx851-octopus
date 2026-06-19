@@ -1,6 +1,0 @@
-# This config is for the onboard BOSA on OSPv1/2 boards
-
-package 'optic'
-
-config optic 'common'
-	option 'mode' 'xgspon'

@@ -1,0 +1,144 @@
+From eba9aa4e67da1407cfec8fb4af66341a1e76ee4a Mon Sep 17 00:00:00 2001
+From: "Langer, Thomas" <tlanger@maxlinear.com>
+Date: Tue, 14 Apr 2026 12:06:02 +0200
+Subject: Add max and min MTU attributes to rtnl_link structure and related functions
+
+---
+ include/netlink-private/types.h |  2 ++
+ include/netlink/route/link.h    |  3 +++
+ lib/route/link.c                | 43 +++++++++++++++++++++++++++++++++
+ libnl-route-3.sym               |  2 ++
+ 4 files changed, 50 insertions(+)
+
+diff --git a/include/netlink-private/types.h b/include/netlink-private/types.h
+index 00a3090d..4bf36c3a 100644
+--- a/include/netlink-private/types.h
++++ b/include/netlink-private/types.h
+@@ -202,6 +202,8 @@ struct rtnl_link
+ 	uint32_t			l_flags;
+ 	uint32_t			l_change;
+ 	uint32_t			l_mtu;
++	uint32_t			l_max_mtu;
++	uint32_t			l_min_mtu;
+ 	uint32_t			l_link;
+ 	int32_t                         l_link_netnsid;
+ 	uint32_t			l_txqlen;
+diff --git a/include/netlink/route/link.h b/include/netlink/route/link.h
+index 1de29168..bf4f06f8 100644
+--- a/include/netlink/route/link.h
++++ b/include/netlink/route/link.h
+@@ -176,6 +176,9 @@ extern unsigned int rtnl_link_get_flags(struct rtnl_link *);
+ extern void	rtnl_link_set_mtu(struct rtnl_link *, unsigned int);
+ extern unsigned int rtnl_link_get_mtu(struct rtnl_link *);
+ 
++extern unsigned int rtnl_link_get_max_mtu(struct rtnl_link *);
++extern unsigned int rtnl_link_get_min_mtu(struct rtnl_link *);
++
+ extern void	rtnl_link_set_txqlen(struct rtnl_link *, unsigned int);
+ extern unsigned int rtnl_link_get_txqlen(struct rtnl_link *);
+ 
+diff --git a/lib/route/link.c b/lib/route/link.c
+index 5bd8b3f9..fe7cf2d8 100644
+--- a/lib/route/link.c
++++ b/lib/route/link.c
+@@ -73,6 +73,8 @@
+ #define LINK_ATTR_GSO_MAX_SEGS		((uint64_t) 1 << 37)
+ #define LINK_ATTR_GSO_MAX_SIZE		((uint64_t) 1 << 38)
+ #define LINK_ATTR_LINKINFO_SLAVE_KIND	((uint64_t) 1 << 39)
++#define LINK_ATTR_MAX_MTU		((uint64_t) 1 << 40)
++#define LINK_ATTR_MIN_MTU		((uint64_t) 1 << 41)
+ 
+ static struct nl_cache_ops rtnl_link_ops;
+ static struct nl_object_ops link_obj_ops;
+@@ -373,6 +375,8 @@ struct nla_policy rtln_link_policy[IFLA_MAX+1] = {
+ 	[IFLA_PHYS_SWITCH_ID]	= { .type = NLA_UNSPEC },
+ 	[IFLA_NET_NS_PID]	= { .type = NLA_U32 },
+ 	[IFLA_NET_NS_FD]	= { .type = NLA_U32 },
++	[IFLA_MAX_MTU]		= { .type = NLA_U32 },
++	[IFLA_MIN_MTU]		= { .type = NLA_U32 },
+ };
+ 
+ static struct nla_policy link_info_policy[IFLA_INFO_MAX+1] = {
+@@ -487,6 +491,16 @@ int rtnl_link_info_parse(struct rtnl_link *link, struct nlattr **tb)
+ 		link->ce_mask |= LINK_ATTR_MTU;
+ 	}
+ 
++	if (tb[IFLA_MAX_MTU]) {
++		link->l_max_mtu = nla_get_u32(tb[IFLA_MAX_MTU]);
++		link->ce_mask |= LINK_ATTR_MAX_MTU;
++	}
++
++	if (tb[IFLA_MIN_MTU]) {
++		link->l_min_mtu = nla_get_u32(tb[IFLA_MIN_MTU]);
++		link->ce_mask |= LINK_ATTR_MIN_MTU;
++	}
++
+ 	if (tb[IFLA_ADDRESS]) {
+ 		link->l_addr = nl_addr_alloc_attr(tb[IFLA_ADDRESS], AF_UNSPEC);
+ 		if (link->l_addr == NULL)
+@@ -907,6 +921,7 @@ static void link_dump_details(struct nl_object *obj, struct nl_dump_params *p)
+ 	link_dump_line(obj, p);
+ 
+ 	nl_dump_line(p, "    mtu %u ", link->l_mtu);
++	nl_dump_line(p, "max_mtu %u min_mtu %u ", link->l_max_mtu, link->l_min_mtu);
+ 	nl_dump(p, "txqlen %u weight %u ", link->l_txqlen, link->l_weight);
+ 
+ 	if (link->ce_mask & LINK_ATTR_QDISC)
+@@ -1115,6 +1130,8 @@ static uint64_t link_compare(struct nl_object *_a, struct nl_object *_b,
+ 
+ 	diff |= LINK_DIFF(IFINDEX,	a->l_index != b->l_index);
+ 	diff |= LINK_DIFF(MTU,		a->l_mtu != b->l_mtu);
++	diff |= LINK_DIFF(MAX_MTU,	a->l_max_mtu != b->l_max_mtu);
++	diff |= LINK_DIFF(MIN_MTU,	a->l_min_mtu != b->l_min_mtu);
+ 	diff |= LINK_DIFF(LINK,		a->l_link != b->l_link);
+ 	diff |= LINK_DIFF(LINK_NETNSID, a->l_link_netnsid != b->l_link_netnsid);
+ 	diff |= LINK_DIFF(TXQLEN,	a->l_txqlen != b->l_txqlen);
+@@ -2282,6 +2299,32 @@ unsigned int rtnl_link_get_mtu(struct rtnl_link *link)
+ 	return link->l_mtu;
+ }
+ 
++/**
++ * Return maximal value of maximum transmission unit of link object
++ * @arg link		Link object
++ *
++ * @route_doc{link_attr_max_mtu, Maximum Transmission Unit}
++ * @see rtnl_link_set_max_mtu()
++ * @return Maximum MTU in bytes or 0 if not set
++ */
++unsigned int rtnl_link_get_max_mtu(struct rtnl_link *link)
++{
++	return link->l_max_mtu;
++}
++
++/**
++ * Return minimal value of maximum transmission unit of link object
++ * @arg link		Link object
++ *
++ * @route_doc{link_attr_min_mtu, Minimum Transmission Unit}
++ * @see rtnl_link_set_min_mtu()
++ * @return Minimum MTU in bytes or 0 if not set
++ */
++unsigned int rtnl_link_get_min_mtu(struct rtnl_link *link)
++{
++	return link->l_min_mtu;
++}
++
+ /**
+  * Set transmission queue length
+  * @arg link		Link object
+diff --git a/libnl-route-3.sym b/libnl-route-3.sym
+index ca4b091c..6ff88d20 100644
+--- a/libnl-route-3.sym
++++ b/libnl-route-3.sym
+@@ -353,6 +353,8 @@ global:
+ 	rtnl_link_get_linkmode;
+ 	rtnl_link_get_master;
+ 	rtnl_link_get_mtu;
++	rtnl_link_get_max_mtu;
++	rtnl_link_get_min_mtu;
+ 	rtnl_link_get_name;
+ 	rtnl_link_get_ns_fd;
+ 	rtnl_link_get_ns_pid;
+-- 
+2.43.0
+

@@ -252,17 +252,16 @@ check_optic_change() {
 }
 
 check_serdes_change() {
-    local serdes_version serdes_transceiver serdes_change
+    local serdes_version serdes_change
 
+    # we don't have a serdes config for specific transceivers yet.
+    # In case we will get this, the handling here needs to be extended like above.
     serdes_version=$(uci -q get serdes.generic.version)
-    serdes_transceiver=$(uci -q get serdes.generic.transceiver_name)
     [ "$serdes_version" != "$IMAGE_VERSION" ] && serdes_change=1
-    [ "$serdes_transceiver" != "$TRANSCEIVER_NAME" ] && serdes_change=1
 
     if [ "$serdes_change" ]; then
         config_apply serdes $(serdes_files_get "$BOARD_NAME")
         uci set serdes.generic.version="$IMAGE_VERSION"
-        uci set serdes.generic.transceiver_name="$TRANSCEIVER_NAME"
         uci commit serdes
     fi
 }

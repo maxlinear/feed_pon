@@ -14,7 +14,7 @@ config 'gpon' 'ploam'
 	option plev_cap '0'
 
 config gpon 'ponip'
-	option pon_mode 'xgspon'
+	option pon_mode 'Undefined'
 	option iop_mask '2'
 
 config gpon 'authentication'
